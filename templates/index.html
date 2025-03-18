@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Check</title>
+</head>
+<body>
+    {% csrf_token %}
+    <h1>Attendance Check</h1>
+    <button id="checkAttendance">Check In</button>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function sendCoordinates(endpoint, latitude, longitude) {
+            const csrfToken = getCookie('csrftoken');
+            fetch(endpoint, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken  // Include CSRF token here
+                },
+                body: JSON.stringify({ latitude, longitude })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Construct a detailed message with distance and percentage if available
+                let message = data.message;
+                if (data.distance !== undefined && data.percentage !== undefined) {
+                    message += `\nDistance: ${data.distance.toFixed(2)} m\nPercentage: ${data.percentage.toFixed(2)}%`;
+                }
+                alert(message);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        document.getElementById("checkAttendance").addEventListener("click", function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const { latitude, longitude } = position.coords;
+                    sendCoordinates('https://ac824190938616.lhr.life/api/attendance/check-circular/', latitude, longitude);
+                }, (error) => {
+                    console.error('Error retrieving location:', error);
+                    alert('Error retrieving location. Please ensure location services are enabled.');
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        });
+    </script>
+</body>
+</html>
