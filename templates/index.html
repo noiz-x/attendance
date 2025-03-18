@@ -25,20 +25,19 @@
             return cookieValue;
         }
 
-        function sendCoordinates(endpoint, latitude, longitude) {
+        function sendCoordinates(endpoint, latitude, longitude, lecture_id, student_id) {
             const csrfToken = getCookie('csrftoken');
             fetch(endpoint, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken  // Include CSRF token here
+                    'X-CSRFToken': csrfToken
                 },
-                body: JSON.stringify({ latitude, longitude })
+                body: JSON.stringify({ latitude, longitude, lecture_id, student_id })
             })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                // Construct a detailed message with distance and percentage if available
                 let message = data.message;
                 if (data.distance !== undefined && data.percentage !== undefined) {
                     message += `\nDistance: ${data.distance.toFixed(2)} m\nPercentage: ${data.percentage.toFixed(2)}%`;
@@ -52,7 +51,11 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const { latitude, longitude } = position.coords;
-                    sendCoordinates('https://127.0.0.1:8000/api/attendance/check-circular/', latitude, longitude);
+                    // Replace these with dynamic values as needed
+                    const lecture_id = 1;  // Example: ID of the lecture
+                    const student_id = 1;  // Example: ID of the student (e.g., from session)
+                    const endpoint = 'http://127.0.0.1:8000/api/check-geofence/';
+                    sendCoordinates(endpoint, latitude, longitude, lecture_id, student_id);
                 }, (error) => {
                     console.error('Error retrieving location:', error);
                     alert('Error retrieving location. Please ensure location services are enabled.');

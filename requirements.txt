@@ -1,3 +1,6 @@
-Django>=3.2
+django>=4.2
 geopy>=2.0
 Shapely>=1.7
+djangorestframework
+asgiref<4,>=3.8.1
+sqlparse>=0.3.1
