@@ -52,7 +52,7 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const { latitude, longitude } = position.coords;
-                    sendCoordinates('https://ac824190938616.lhr.life/api/attendance/check-circular/', latitude, longitude);
+                    sendCoordinates('https://127.0.0.1:8000/api/attendance/check-circular/', latitude, longitude);
                 }, (error) => {
                     console.error('Error retrieving location:', error);
                     alert('Error retrieving location. Please ensure location services are enabled.');
