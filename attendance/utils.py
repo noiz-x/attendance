@@ -37,10 +37,11 @@ def check_geofence(lat, lon, theatre):
     Returns a tuple (confirmed, percentage, distance).
     For polygon, distance is None.
     """
+    print(theatre.polygon_coordinates)
     if theatre.polygon_coordinates:
         confirmed = is_inside_polygon_geofence(lat, lon, theatre.polygon_coordinates)
         percentage = 100 if confirmed else 0
-        return confirmed, percentage, None
+        return confirmed, percentage, 0
     else:
         confirmed, distance = is_within_circular_geofence(lat, lon, theatre.center_lat, theatre.center_lon, theatre.geofence_radius)
         percentage = calculate_attendance_percentage(distance, theatre.error_margin, theatre.geofence_radius)
