@@ -25,9 +25,7 @@ SECRET_KEY = 'django-insecure-+9w8qfe4fhq4pb8z6&2mek!0%@$dn^*+=*)uk6mpw*9r%3hl9b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    # '5b7d4caab01d13.lhr.life'
-]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -41,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'attendance',
     'rest_framework',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -126,6 +125,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = [
-    # "https://ac824190938616.lhr.life",
-]
+CSRF_TRUSTED_ORIGINS = []

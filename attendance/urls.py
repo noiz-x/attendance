@@ -1,10 +1,30 @@
 # attendance/urls.py
-from django.urls import path
-from .views import index, check_attendance_geofence
-from .api_views import CheckAttendance
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import index  # renders index.html
+from .api_views import AttendanceViewSet
+
+# Swagger imports
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
+
+router = DefaultRouter()
+router.register(r'attendance', AttendanceViewSet, basename='attendance')
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Attendance API",
+        default_version='v1',
+        description="API documentation for the attendance project",
+        contact=openapi.Contact(email="contact@example.com"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('', index, name='index'),
-    path('api/check-attendance/', CheckAttendance.as_view(), name='check_attendance'),
-    path('api/check-geofence/', check_attendance_geofence, name='check_geofence'),
+    path('api/', include(router.urls)),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

@@ -54,7 +54,7 @@
                     // Replace these with dynamic values as needed
                     const lecture_id = 1;  // Example: ID of the lecture
                     const student_id = 1;  // Example: ID of the student (e.g., from session)
-                    const endpoint = 'http://127.0.0.1:8000/api/check-geofence/';
+                    const endpoint = 'https://c7415d6256b0e2.lhr.life/api/check-geofence/';
                     sendCoordinates(endpoint, latitude, longitude, lecture_id, student_id);
                 }, (error) => {
                     console.error('Error retrieving location:', error);
