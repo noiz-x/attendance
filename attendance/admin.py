@@ -1,12 +1,12 @@
-# attendance/admin.py
+from django.contrib.gis.admin import GISModelAdmin
 from django.contrib import admin
 from .models import Theatre, Lecture, Attendance
 from .forms import TheatreAdminForm
 
 @admin.register(Theatre)
-class TheatreAdmin(admin.ModelAdmin):
+class TheatreAdmin(GISModelAdmin):
     form = TheatreAdminForm
-    list_display = ('name', 'center_lat', 'center_lon', 'geofence_radius', 'error_margin')
+    list_display = ('name', 'center', 'geofence_radius', 'error_margin')
     search_fields = ('name',)
 
 @admin.register(Lecture)

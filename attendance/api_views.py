@@ -1,15 +1,14 @@
-# attendance/api_views.py
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .models import Lecture, Attendance
 from django.contrib.auth.models import User
+from .models import Lecture, Attendance
 from .utils import check_geofence
 
 class AttendanceViewSet(viewsets.ViewSet):
     """
     A ViewSet for checking attendance via geolocation.
-    Expects latitude, longitude, lecture_id, and student_id in the POST data.
+    Expects: latitude, longitude, lecture_id, and student_id.
     """
     def create(self, request):
         try:
@@ -27,7 +26,6 @@ class AttendanceViewSet(viewsets.ViewSet):
         theatre = lecture.theatre
 
         confirmed, percentage, distance = check_geofence(lat, lon, theatre)
-
         student = get_object_or_404(User, pk=student_id)
 
         Attendance.objects.create(

@@ -1,10 +1,7 @@
-# attendance/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import index  # renders index.html
+from .views import index
 from .api_views import AttendanceViewSet
-
-# Swagger imports
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
