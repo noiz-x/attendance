@@ -1,6 +1,5 @@
-django>=4.2
+Django>=3.2
+djangorestframework>=3.12
+drf-yasg>=1.20
 geopy>=2.0
 Shapely>=1.7
-djangorestframework
-asgiref<4,>=3.8.1
-sqlparse>=0.3.1
