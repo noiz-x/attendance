@@ -6,7 +6,7 @@ from .forms import TheatreAdminForm
 @admin.register(Theatre)
 class TheatreAdmin(GISModelAdmin):
     form = TheatreAdminForm
-    list_display = ('name', 'center', 'geofence_radius', 'error_margin')
+    list_display = ('name', 'center')
     search_fields = ('name',)
 
 @admin.register(Lecture)
@@ -16,5 +16,5 @@ class LectureAdmin(admin.ModelAdmin):
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ('student', 'lecture', 'timestamp', 'distance', 'percentage', 'confirmed')
-    list_filter = ('confirmed', 'lecture')
+    list_display = ('student', 'lecture', 'timestamp')
+    list_filter = ('lecture',)

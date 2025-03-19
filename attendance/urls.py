@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import index
+from .views import index, fetch_nearest_building_polygon
 from .api_views import AttendanceViewSet
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -23,5 +23,6 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('', index, name='index'),
     path('api/', include(router.urls)),
+    path('api/theatre/<int:theatre_id>/polygon/', fetch_nearest_building_polygon, name='fetch_polygon'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

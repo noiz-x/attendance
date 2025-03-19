@@ -23,22 +23,24 @@ class AttendanceViewSet(viewsets.ViewSet):
             return Response({'error': 'Missing lecture_id or student_id'}, status=status.HTTP_400_BAD_REQUEST)
 
         lecture = get_object_or_404(Lecture, pk=lecture_id)
-        theatre = lecture.theatre
+        
+        # Get the building polygon using Theatre.polygon()
+        lecture_polygon = lecture.theatre.polygon()
+        print(lecture_polygon)
+        if not lecture_polygon:
+            return Response({'error': 'No building polygon found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check the geofence using the theatre object.
+        confirmed, percentage, distance = check_geofence(lat, lon, lecture.theatre)
 
-        confirmed, percentage, distance = check_geofence(lat, lon, theatre)
         student = get_object_or_404(User, pk=student_id)
 
         Attendance.objects.create(
             student=student,
-            lecture=lecture,
-            distance=distance if distance is not None else 0,
-            percentage=percentage,
-            confirmed=confirmed
+            lecture=lecture
         )
 
         return Response({
             'status': 'success' if confirmed else 'failed',
             'message': 'Attendance confirmed.' if confirmed else 'Location is outside the theatre geofence.',
-            'distance': distance,
-            'percentage': percentage,
         }, status=status.HTTP_200_OK)

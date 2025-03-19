@@ -3,3 +3,6 @@ djangorestframework>=3.12
 drf-yasg>=1.20
 geopy>=2.0
 Shapely>=1.7
+psycopg2>=2.9
+django-rest-framework-gis>=0.15
+overpy>=0.6
