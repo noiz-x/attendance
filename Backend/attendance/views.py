@@ -14,6 +14,7 @@ class AttendanceViewSet(viewsets.ViewSet):
         try:
             lat = float(request.data.get('latitude'))
             lon = float(request.data.get('longitude'))
+            print(f"{lat}, {lon}")
         except (TypeError, ValueError):
             return Response({'error': 'Invalid latitude or longitude'}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -26,6 +27,7 @@ class AttendanceViewSet(viewsets.ViewSet):
         
         # Get the building polygon using Theatre.polygon()
         lecture_polygon = lecture.theatre.polygon()
+        print(f"lecture: {lecture_polygon}")
         if not lecture_polygon:
             return Response({'error': 'No building polygon found'}, status=status.HTTP_404_NOT_FOUND)
         
@@ -42,4 +44,6 @@ class AttendanceViewSet(viewsets.ViewSet):
         return Response({
             'status': 'success' if confirmed else 'failed',
             'message': 'Attendance confirmed.' if confirmed else 'Location is outside the theatre geofence.',
+            'percentage': percentage if percentage is not None else 'N/A',
+            'distance': distance if distance is not None else 'N/A'
         }, status=status.HTTP_200_OK)
