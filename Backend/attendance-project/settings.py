@@ -1,3 +1,5 @@
+# Backend/attendance-project/settings.py
+
 from pathlib import Path
 from dotenv import load_dotenv
 import os
@@ -7,12 +9,12 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-+9w8qfe4fhq4pb8z6&2mek!0%@$dn^*+=*)uk6mpw*9r%3hl9b")
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-...")
 DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
-    # Django built-in apps
+    # Django core apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -23,7 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",  # required by allauth
 
     # Your apps
-    "accounts",    # contains your custom user model and related serializers
+    "accounts",    # custom user model and serializers
     "attendance",
 
     # Third-party apps
@@ -101,7 +103,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
 
-# JWT Settings
+# Email Backend for development (prints emails to console)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Allauth settings for email verification
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_LOGIN_METHODS = ["username"]  # Corrected from the typo "AC = [...]"
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+
+# JWT Settings for Simple JWT (refined)
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
@@ -109,6 +120,9 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),  # Use the standard Bearer header
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
 }
 
 # REST Framework Settings
@@ -124,19 +138,19 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
 
-# dj_rest_auth Settings using custom account serializers
+# dj_rest_auth Settings (refined)
 REST_AUTH = {
     "REGISTER_SERIALIZER": "accounts.serializers.RegistrationSerializer",
     "USER_DETAILS_SERIALIZER": "accounts.serializers.AppUserDetailsSerializer",
     "LOGIN_SERIALIZER": "accounts.serializers.AppLoginSerializer",
     "USE_JWT": True,
-    "JWT_AUTH_HTTPONLY": False,
+    "JWT_AUTH_HTTPONLY": True,  # Use HttpOnly cookies to enhance security
     "OLD_PASSWORD_FIELD_ENABLED": True,
 }
 
-# Disable token-based authentication since we are using JWT exclusively
+# Disable authtoken-based models since we're using JWT exclusively
 TOKEN_MODEL = None
 DJ_REST_AUTH_TOKEN_MODEL = None
 
-# Use our custom user model
+# Specify the custom user model
 AUTH_USER_MODEL = "accounts.CustomUser"
