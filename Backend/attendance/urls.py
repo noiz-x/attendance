@@ -6,12 +6,12 @@ from drf_yasg import openapi
 from rest_framework import permissions
 
 router = DefaultRouter()
-router.register(r'attendance', AttendanceViewSet, basename='attendance')
+router.register(r"attendance", AttendanceViewSet, basename="attendance")
 
 schema_view = get_schema_view(
     openapi.Info(
         title="Attendance API",
-        default_version='v1',
+        default_version="v1",
         description="API documentation for the attendance project",
         contact=openapi.Contact(email="contact@example.com"),
     ),
@@ -20,6 +20,6 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('api/', include(router.urls)),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path("api/", include(router.urls)),
+    path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
 ]
