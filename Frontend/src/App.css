@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
-@layer base {
-  /* @apply  */
+/* Custom container to use across pages */
+.container-responsive {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Example responsive typography */
+.heading-responsive {
+  @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold;
+}
+
+/* Example responsive form input */
+.input-responsive {
+  @apply w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+/* Example responsive button */
+.button-responsive {
+  @apply w-full py-2 px-4 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors;
 }
