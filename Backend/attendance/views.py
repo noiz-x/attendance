@@ -24,7 +24,7 @@ class AttendanceViewSet(viewsets.ViewSet):
         
         lecture_id = request.data.get('lecture_id')
         if not lecture_id:
-            return Response({'error': 'Missing lecture_id'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Missing lecture id'}, status=status.HTTP_400_BAD_REQUEST)
 
         lecture = get_object_or_404(Lecture, pk=lecture_id)
         lecture_polygon = lecture.theatre.polygon()
