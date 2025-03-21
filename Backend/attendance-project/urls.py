@@ -1,7 +1,9 @@
+# Backend/attendance-project/urls.py
+
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('attendance.urls')),  # Include the attendance app URLs
+    path('', include('attendance.urls')),
 ]

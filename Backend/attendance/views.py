@@ -1,43 +1,40 @@
+# Backend/attendance/views.py
+
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
 from .models import Lecture, Attendance
 from .utils import check_geofence
 
 class AttendanceViewSet(viewsets.ViewSet):
     """
     A ViewSet for checking attendance via geolocation.
-    Expects: latitude, longitude, lecture_id, and student_id.
+    Expects: latitude, longitude, lecture_id.
+    User must be authenticated with a valid JWT.
     """
+    permission_classes = [IsAuthenticated]
+
     def create(self, request):
         try:
             lat = float(request.data.get('latitude'))
             lon = float(request.data.get('longitude'))
-            print(f"{lat}, {lon}")
         except (TypeError, ValueError):
             return Response({'error': 'Invalid latitude or longitude'}, status=status.HTTP_400_BAD_REQUEST)
         
         lecture_id = request.data.get('lecture_id')
-        student_id = request.data.get('student_id')
-        if not lecture_id or not student_id:
-            return Response({'error': 'Missing lecture_id or student_id'}, status=status.HTTP_400_BAD_REQUEST)
+        if not lecture_id:
+            return Response({'error': 'Missing lecture_id'}, status=status.HTTP_400_BAD_REQUEST)
 
         lecture = get_object_or_404(Lecture, pk=lecture_id)
-        
-        # Get the building polygon using Theatre.polygon()
         lecture_polygon = lecture.theatre.polygon()
-        print(f"lecture: {lecture_polygon}")
         if not lecture_polygon:
             return Response({'error': 'No building polygon found'}, status=status.HTTP_404_NOT_FOUND)
         
-        # Check the geofence using the theatre object.
         confirmed, percentage, distance = check_geofence(lat, lon, lecture.theatre)
-
-        student = get_object_or_404(User, pk=student_id)
-
+        # Use the authenticated user
         Attendance.objects.create(
-            student=student,
+            student=request.user,
             lecture=lecture
         )
 

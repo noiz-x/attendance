@@ -1,3 +1,5 @@
+# Backend/attendance/admin.py
+
 from django.contrib.gis.admin import GISModelAdmin
 from django.contrib import admin
 from .models import Theatre, Lecture, Attendance
