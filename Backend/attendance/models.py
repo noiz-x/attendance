@@ -1,3 +1,5 @@
+# Backend/attendance/models.py
+
 from django.contrib.gis.db import models as geomodels
 from django.db import models, transaction
 from django.contrib.auth import get_user_model

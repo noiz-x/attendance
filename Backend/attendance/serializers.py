@@ -1,3 +1,5 @@
+# Backend/attendance/serializers.py
+
 from rest_framework import serializers
 from django.db import transaction, IntegrityError
 from .models import Attendance, Lecture, Course, Registration
