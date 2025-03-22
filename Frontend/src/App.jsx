@@ -1,3 +1,5 @@
+// Frontend/src/App.jsx
+
 import Attendance from "./components/Attendance";
 import Day from "./components/Day";
 import Timetable from "./components/Timetable";

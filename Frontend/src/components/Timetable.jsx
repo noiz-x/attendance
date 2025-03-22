@@ -1,3 +1,5 @@
+// Frontend/src/components/Timetable.jsx
+
 import React from 'react'
 
 const Timetable = () => {

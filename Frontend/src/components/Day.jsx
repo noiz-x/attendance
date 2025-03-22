@@ -1,3 +1,5 @@
+// Frontend/src/components/Day.jsx
+
 import { useState } from "react";
 
 const Day = () => {
