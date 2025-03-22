@@ -1,21 +1,48 @@
 // Frontend/src/components/Day.jsx
-
 import { useState } from "react";
+
+const daysShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const daysLong = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+const DayButton = ({ currentDate, offset, isCurrent, onSelect }) => {
+  const date = new Date(currentDate);
+  date.setDate(currentDate.getDate() + offset);
+  const dayClass = isCurrent ? "currentDay" : "day";
+
+  return (
+    <button
+      className={dayClass}
+      onClick={isCurrent ? undefined : () => onSelect(date)}
+    >
+      <p className="lg:hidden">{daysShort[date.getDay()]}</p>
+      <p className="hidden lg:inline">{daysLong[date.getDay()]}</p>
+      <p className="text-xl md:text-xl">{date.getDate()}</p>
+    </button>
+  );
+};
 
 const Day = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  // Arrays for day and month names.
-  const daysShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-  const daysLong = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
+  // Helper function to change the current date.
+  const changeDate = (date) => setCurrentDate(date);
+
+  // Week navigation handlers.
+  const shiftDate = (days) =>
+    setCurrentDate((prev) => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() + days);
+      return d;
+    });
+
   const monthNames = [
     "January",
     "February",
@@ -31,13 +58,6 @@ const Day = () => {
     "December",
   ];
 
-  // Helper function to add days to a Date object.
-  const addDays = (date, days) => {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
-  };
-
   return (
     <div className="w-full flex flex-col items-center gap-3 md:gap-6 mb-8">
       {/* Static Month Display */}
@@ -49,10 +69,8 @@ const Day = () => {
       <div className="flex h-[125px] items-center gap-2 md:gap-6 w-full">
         {/* Previous Week */}
         <button
-          className="rounded-md hidden  cursor-pointer h-[100px] w-12 md:flex items-center justify-center bg-neutral-50"
-          onClick={() => {
-            setCurrentDate(addDays(currentDate, -7));
-          }}
+          className="rounded-md hidden cursor-pointer h-[100px] w-12 md:flex items-center justify-center bg-neutral-50"
+          onClick={() => shiftDate(-7)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -71,92 +89,38 @@ const Day = () => {
         </button>
 
         <div className="w-full flex items-center gap-3 md:gap-6">
-          {/* 2 days before */}
-          <button
-            className="day"
-            onClick={() => {
-              setCurrentDate(addDays(currentDate, -2));
-            }}
-          >
-            <p className="lg:hidden">
-              {daysShort[addDays(currentDate, -2).getDay()]}
-            </p>
-            <p className="hidden lg:inline">
-              {daysLong[addDays(currentDate, -2).getDay()]}
-            </p>
-            <p className="text-xl md:text-xl">
-              {addDays(currentDate, -2).getDate()}
-            </p>
-          </button>
-
-          {/* A Day before */}
-          <button
-            className="day"
-            onClick={() => {
-              setCurrentDate(addDays(currentDate, -1));
-            }}
-          >
-            <p className="lg:hidden">
-              {daysShort[addDays(currentDate, -1).getDay()]}
-            </p>
-            <p className="hidden lg:inline">
-              {daysLong[addDays(currentDate, -1).getDay()]}
-            </p>
-            <p className="text-xl md:text-xl">
-              {addDays(currentDate, -1).getDate()}
-            </p>
-          </button>
-
-          {/* Current Day */}
-          <button className="currentDay">
-            <p className="lg:hidden">{daysShort[currentDate.getDay()]}</p>
-            <p className="hidden lg:inline">{daysLong[currentDate.getDay()]}</p>
-            <p className="text-xl md:text-xl">{currentDate.getDate()}</p>
-          </button>
-
-          {/* A Day After */}
-          <button
-            className="day"
-            onClick={() => {
-              setCurrentDate(addDays(currentDate, 1));
-            }}
-          >
-            <p className="lg:hidden">
-              {daysShort[addDays(currentDate, 1).getDay()]}
-            </p>
-            <p className="hidden lg:inline">
-              {daysLong[addDays(currentDate, 1).getDay()]}
-            </p>
-            <p className="text-xl md:text-xl">
-              {addDays(currentDate, 1).getDate()}
-            </p>
-          </button>
-
-          {/* 2 Days After */}
-          <button
-            className="day"
-            onClick={() => {
-              setCurrentDate(addDays(currentDate, 2));
-            }}
-          >
-            <p className="lg:hidden">
-              {daysShort[addDays(currentDate, 2).getDay()]}
-            </p>
-            <p className="hidden lg:inline">
-              {daysLong[addDays(currentDate, 2).getDay()]}
-            </p>
-            <p className="text-xl md:text-xl">
-              {addDays(currentDate, 2).getDate()}
-            </p>
-          </button>
+          <DayButton
+            currentDate={currentDate}
+            offset={-2}
+            onSelect={changeDate}
+          />
+          <DayButton
+            currentDate={currentDate}
+            offset={-1}
+            onSelect={changeDate}
+          />
+          <DayButton
+            currentDate={currentDate}
+            offset={0}
+            isCurrent
+            onSelect={changeDate}
+          />
+          <DayButton
+            currentDate={currentDate}
+            offset={1}
+            onSelect={changeDate}
+          />
+          <DayButton
+            currentDate={currentDate}
+            offset={2}
+            onSelect={changeDate}
+          />
         </div>
 
         {/* Next Week */}
         <button
           className="rounded-md hidden h-[100px] w-12 cursor-pointer md:flex items-center justify-center bg-neutral-50"
-          onClick={() => {
-            setCurrentDate(addDays(currentDate, 7));
-          }}
+          onClick={() => shiftDate(7)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -177,12 +141,9 @@ const Day = () => {
 
       {/* Mobile Week Nav */}
       <div className="flex md:hidden h-12 w-full gap-4">
-        {/* Previous Week */}
         <button
-          className="rounded-md  cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
-          onClick={() => {
-            setCurrentDate(addDays(currentDate, -7));
-          }}
+          className="rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
+          onClick={() => shiftDate(-7)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -199,12 +160,9 @@ const Day = () => {
             />
           </svg>
         </button>
-        {/* Next Week */}
         <button
           className="rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
-          onClick={() => {
-            setCurrentDate(addDays(currentDate, 7));
-          }}
+          onClick={() => shiftDate(7)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
