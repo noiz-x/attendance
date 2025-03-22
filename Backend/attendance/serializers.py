@@ -27,9 +27,9 @@ class CourseSerializer(serializers.ModelSerializer):
     lectures = LectureSerializer(many=True, read_only=True)
     class Meta:
         model = Course
-        fields = ['id', 'course_name', 'lectures']
+        fields = ['id', 'course_code', 'lectures']
 
-class RegistrationSerializer(serializers.ModelSerializer):
+class CourseRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
         fields = ['id', 'course', 'registered_at', 'status']

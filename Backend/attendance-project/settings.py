@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     # Your apps
     "accounts",    # custom user model and serializers
     "attendance",
+    "recurrence",
 
     # Third-party apps
     "rest_framework",
@@ -118,7 +119,7 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 # JWT Settings for Simple JWT (refined)
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1000),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
