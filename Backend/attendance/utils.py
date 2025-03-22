@@ -62,7 +62,5 @@ def check_geofence(lat, lon, theatre, error_margin_meters=50):
     error_margin_deg = error_margin_meters / 111320.0
     # Buffer the polygon to "enlarge" it, accommodating GPS inaccuracies
     buffered_poly = poly.buffer(error_margin_deg)
-    print(buffered_poly.wkt)
     confirmed = buffered_poly.contains(user_point)
-    percentage = 100 if confirmed else 0
-    return confirmed, percentage, None
+    return confirmed
