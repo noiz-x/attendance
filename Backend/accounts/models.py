@@ -1,5 +1,13 @@
 # Backend/accounts/models.py
 
+"""
+accounts/models.py
+
+This module defines the custom user model (CustomUser) for the application.
+The CustomUser extends Django's AbstractUser and includes a 'role' field
+to differentiate between student and lecturer accounts.
+"""
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 

@@ -1,5 +1,17 @@
 # Backend/attendance/models.py
 
+"""
+attendance/models.py
+
+This module defines the models for the attendance app:
+- Theatre: Represents a venue with geospatial data.
+- Course: Contains course information.
+- Lecture: Defines a recurring lecture for a course.
+- CanceledOccurrence: Stores dates when a lecture occurrence is canceled.
+- Registration: Records a student's registration for a course.
+- Attendance: Records whether a student attended a lecture occurrence.
+"""
+
 from django.contrib.gis.db import models as geomodels
 from django.db import models, transaction
 from django.contrib.auth import get_user_model
@@ -10,10 +22,18 @@ import recurrence.fields  # django-recurrence field import
 User = get_user_model()
 
 class Theatre(geomodels.Model):
+    """
+    Represents a theatre (or venue) with geospatial information.
+    """
     name = models.CharField(max_length=255)
     center = geomodels.PointField(srid=4326)
 
     def polygon(self, search_radius=10):
+        """
+        Retrieves the building polygon for this theatre.
+        Calls an external API via a utility function to get the polygon
+        based on the centre point and search radius.
+        """
         from .utils import get_nearest_building_polygon
         return get_nearest_building_polygon(self.center, search_radius)
 
@@ -21,9 +41,11 @@ class Theatre(geomodels.Model):
         return self.name
 
 class Course(models.Model):
+    """
+    Represents a course with its code and title.
+    """
     course_code = models.CharField(max_length=255)
     course_title = models.CharField(max_length=255)
-    # Additional course-level fields (description, credits, etc.) can be added here
 
     def __str__(self):
         return self.course_code
@@ -31,7 +53,7 @@ class Course(models.Model):
 class Lecture(models.Model):
     """
     Represents a recurring lecture for a course.
-    Each record defines a recurring lecture for a particular time slot.
+    Includes the course, venue (theatre), timing details, and recurrence rules.
     """
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lectures')
     theatre = models.ForeignKey(Theatre, on_delete=models.CASCADE)
@@ -50,8 +72,8 @@ class Lecture(models.Model):
 
     def get_occurrences(self, from_date, to_date):
         """
-        Returns a list of occurrences (as dictionaries with start and end datetime)
-        for this lecture between from_date and to_date.
+        Returns a list of occurrences (with start and end datetimes)
+        for this lecture between the specified dates.
         """
         from datetime import datetime
         occurrences = []
@@ -65,8 +87,8 @@ class Lecture(models.Model):
 
 class CanceledOccurrence(models.Model):
     """
-    Stores canceled occurrences for a recurring lecture.
-    This lets you cancel one or more specific dates without canceling the entire series.
+    Stores canceled occurrences for a lecture.
+    Allows cancelling individual occurrences without canceling the entire series.
     """
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='canceled_occurrences')
     occurrence_date = models.DateField()
@@ -78,6 +100,10 @@ class CanceledOccurrence(models.Model):
         return f"{self.lecture} canceled on {self.occurrence_date}"
 
 class Registration(models.Model):
+    """
+    Records a student's registration for a course.
+    Enforces a unique constraint so that a student can register only once per course.
+    """
     STATUS_CHOICES = (
         ('active', 'Active'),
         ('revoked', 'Revoked'),
@@ -96,9 +122,8 @@ class Registration(models.Model):
 
 class Attendance(models.Model):
     """
-    Records attendance for a specific occurrence of a recurring lecture.
-    'occurrence_date' identifies the date of the occurrence.
-    The 'attended' flag indicates whether the student was within the geofence.
+    Records attendance for a lecture occurrence.
+    Indicates whether the student was within the geofence of the theatre.
     """
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
@@ -110,7 +135,11 @@ class Attendance(models.Model):
         unique_together = ('student', 'lecture', 'occurrence_date')
 
     def clean(self):
-        # Check if this specific occurrence is canceled.
+        """
+        Validate the attendance record:
+          - Ensure the lecture occurrence is not canceled.
+          - Verify that the student is actively registered for the course.
+        """
         if self.lecture.canceled_occurrences.filter(occurrence_date=self.occurrence_date).exists():
             raise ValidationError("This lecture occurrence has been canceled.")
         # Ensure the student is actively registered for the course.
@@ -122,6 +151,9 @@ class Attendance(models.Model):
             raise ValidationError("You are not actively registered for this course.")
 
     def save(self, *args, **kwargs):
+        """
+        Overrides the save method to run validations before saving.
+        """
         self.clean()  # Validate before saving.
         super().save(*args, **kwargs)
 

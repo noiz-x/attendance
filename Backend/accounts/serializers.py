@@ -1,12 +1,23 @@
 # Backend/accounts/serializers.py
 
+"""
+accounts/serializers.py
+
+This module defines serializers for the CustomUser model.
+It customizes the registration, login, and user details serializers
+from dj_rest_auth to include the custom role field.
+"""
+
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from dj_rest_auth.serializers import LoginSerializer, UserDetailsSerializer
 from rest_framework import serializers
 from accounts.models import CustomUser
 
 class RegistrationSerializer(RegisterSerializer):
-    # Allow users to choose a role on registration; you can change this behavior as needed.
+    """
+    Serializer for user registration.
+    Allows the user to choose a role during registration.
+    """
     role = serializers.ChoiceField(
         choices=CustomUser.ROLE_CHOICES, default=CustomUser.STUDENT
     )
@@ -25,7 +36,9 @@ class RegistrationSerializer(RegisterSerializer):
         user.save()
 
 class AppUserDetailsSerializer(UserDetailsSerializer):
-    # Extend the default user details serializer to include the custom role.
+    """
+    Extends the default user details serializer to include the custom role.
+    """
     role = serializers.CharField(source="get_role_display", read_only=True)
 
     class Meta(UserDetailsSerializer.Meta):

@@ -1,5 +1,12 @@
 # Backend/accounts/urls.py
 
+"""
+accounts/urls.py
+
+URL configuration for account-related endpoints.
+This includes email confirmation and endpoints provided by dj_rest_auth.
+"""
+
 from django.urls import path, re_path, include
 from accounts.views import email_confirm_view
 

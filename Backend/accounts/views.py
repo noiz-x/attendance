@@ -1,5 +1,13 @@
 # Backend/accounts/views.py
 
+"""
+accounts/views.py
+
+This module defines views for account-related actions.
+Here, the default email confirmation view from django-allauth is wrapped
+with csrf_exempt to simplify email confirmation via GET requests.
+"""
+
 from django.views.decorators.csrf import csrf_exempt
 from allauth.account.views import confirm_email
 
