@@ -5,14 +5,19 @@ from django.db import transaction, IntegrityError
 from .models import Attendance, Lecture, Course, Registration
 
 class AttendanceSerializer(serializers.ModelSerializer):
+    occurrence_date = serializers.DateField(required=False)
+
     class Meta:
         model = Attendance
-        fields = ['id', 'lecture', 'timestamp']
+        fields = ['id', 'lecture', 'occurrence_date', 'timestamp']
         read_only_fields = ['timestamp']
 
     def create(self, validated_data):
         request = self.context.get('request')
         validated_data['student'] = request.user
+        # Set occurrence_date to today if not provided
+        if 'occurrence_date' not in validated_data:
+            validated_data['occurrence_date'] = timezone.localdate()
         try:
             with transaction.atomic():
                 attendance = Attendance.objects.create(**validated_data)

@@ -119,6 +119,7 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 # JWT Settings for Simple JWT (refined)
 SIMPLE_JWT = {
+    # ! revert back to 15-30
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1000),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
@@ -138,6 +139,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_THROTTLE_RATES": {
+        "user": "100/hour",
+        "anon": "50/hour",
+    },
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",

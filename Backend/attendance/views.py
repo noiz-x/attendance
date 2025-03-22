@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import Course, Lecture, Registration, Attendance
+from django.utils import timezone
+from .models import Course, Lecture, Registration, Attendance, CanceledOccurrence
 from .serializers import (
     CourseSerializer,
     LectureSerializer,
@@ -46,15 +47,9 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         serializer.save(student=self.request.user)
 
 class AttendanceViewSet(viewsets.ViewSet):
-    """
-    Endpoint for recording attendance via geolocation.
-    Expects: latitude, longitude, and lecture_id.
-    Checks the geofence and records attendance with an `attended` flag.
-    """
     permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request):
-        # Validate latitude and longitude.
         try:
             lat = float(request.data.get("latitude"))
             lon = float(request.data.get("longitude"))
@@ -71,11 +66,15 @@ class AttendanceViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Retrieve the lecture and ensure it is valid.
         lecture = get_object_or_404(Lecture, id=lecture_id)
-        if lecture.canceled:
+        
+        # Set the occurrence_date; here defaulting to today's date.
+        occurrence_date = timezone.localdate()
+
+        # Check if the lecture occurrence is canceled.
+        if lecture.canceled_occurrences.filter(occurrence_date=occurrence_date).exists():
             return Response(
-                {"error": "This lecture has been canceled."},
+                {"error": "This lecture occurrence has been canceled."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -86,31 +85,30 @@ class AttendanceViewSet(viewsets.ViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Check the geofence.
         try:
             confirmed = check_geofence(lat, lon, lecture.theatre)
-        except Exception as e:
+        except Exception:
             return Response(
-                {"error": str(e)},
+                {"error": "An error occurred while processing your location."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Create the attendance record with concurrency protection.
         try:
             with transaction.atomic():
-                Attendance.objects.create(
+                attendance, created = Attendance.objects.get_or_create(
                     student=request.user,
                     lecture=lecture,
-                    attended=confirmed,
+                    occurrence_date=occurrence_date,
+                    defaults={'attended': confirmed}
                 )
+                if not created:
+                    return Response(
+                        {"error": "Attendance already recorded."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
         except IntegrityError:
             return Response(
-                {"error": "Attendance already recorded or a concurrency error occurred."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except DjangoValidationError as e:
-            return Response(
-                {"error": e.messages},
+                {"error": "A concurrency error occurred. Please try again."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

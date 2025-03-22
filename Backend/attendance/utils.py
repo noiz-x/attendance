@@ -1,14 +1,19 @@
 # Backend/attendance/utils.py
 
+from django.core.cache import cache
 import overpy
 from django.contrib.gis.geos import Point, Polygon
 
 def get_nearest_building_polygon(point, search_radius=50):
     """
-    Given a GEOS Point (x=lon, y=lat), queries the Overpass API (via python-overpy)
-    for building ways within `search_radius` meters and returns the polygon coordinates 
-    (list of [lon, lat] pairs) for the first building found.
+    Given a GEOS Point (x=lon, y=lat), query the Overpass API for building ways within
+    `search_radius` meters and return the building polygon. Results are cached to reduce API calls.
     """
+    cache_key = f"building_polygon_{point.x}_{point.y}_{search_radius}"
+    coords = cache.get(cache_key)
+    if coords:
+        return coords
+
     lon, lat = point.x, point.y
     api = overpy.Overpass()
     query = f"""
@@ -18,8 +23,8 @@ def get_nearest_building_polygon(point, search_radius=50):
     """
     try:
         result = api.query(query)
-    except Exception as e:
-        # Log error as needed.
+    except Exception:
+        # Optionally log the error here.
         return None
 
     for way in result.ways:
@@ -28,15 +33,10 @@ def get_nearest_building_polygon(point, search_radius=50):
             # Ensure the polygon ring is closed.
             if coords and coords[0] != coords[-1]:
                 coords.append(coords[0])
+            # Cache the result for one hour.
+            cache.set(cache_key, coords, timeout=3600)
             return coords
     return None
-
-def calculate_attendance_percentage(distance, error_margin, geofence_radius):
-    if distance <= error_margin:
-        return 100
-    elif distance < geofence_radius:
-        return 100 * (geofence_radius - distance) / (geofence_radius - error_margin)
-    return 0
 
 def check_geofence(lat, lon, theatre, error_margin_meters=50):
     """
