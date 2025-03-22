@@ -1,4 +1,5 @@
 // Frontend/src/components/Day.jsx
+
 import { useState } from "react";
 
 const daysShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
