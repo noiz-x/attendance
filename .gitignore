@@ -311,5 +311,10 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-
+# Custom
+.vite/
+.vscode/
 Todo.md
+*.jpg
+*.png
+*.jpeg
