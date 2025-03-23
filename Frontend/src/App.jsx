@@ -1,12 +1,12 @@
-import Date from "./componsnts/Date";
-import Timetable from "./componsnts/Timetable";
-import Attendance from "./componsnts/Attendance";
+import Day from "../src/components/Day";
+import Timetable from "../src/components/Timetable";
+import Attendance from "../src/components/Attendance";
 
 function App() {
 
   return (
     <div className="w-full p-8">
-      <Date />
+      <Day />
       <Attendance />
       <Timetable />
     </div>

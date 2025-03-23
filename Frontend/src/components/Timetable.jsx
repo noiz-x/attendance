@@ -7,7 +7,7 @@ const Timetable = () => {
   return (
     <div className='mt-8'>
       <h1 className='text-xl'>Timetable</h1>
-      <div className="mt-4 w-full gap-4 grid grid-cols-1 md:grid-cols-3">
+      <div className="mt-4 w-full gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {/* Lecture */}
         <div className="flex flex-col col-span-1 row-span-1 height[100px] bg-neutral-100 rounded-md p-4 ">
           <p id="lectureTime" className='font-bold'>13:00 - 14:00</p>
