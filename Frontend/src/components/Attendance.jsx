@@ -85,7 +85,7 @@ const Attendance = () => {
           {...lectureData}
           buttonText="Mark Attendance"
           containerClasses="flex w-full md:w-1/2 p-6 gap-4 md:gap-[40%] items-center bg-neutral-50"
-          buttonClasses="cursor-pointer bg-black hover:bg-blue-500 text-white py-3 px-auto w-full rounded-md h-fit transition duration-300 ease-linear"
+          buttonClasses="cursor-pointer bg-black hover:bg-gray-700 text-white py-3 px-auto w-full rounded-md h-fit transition duration-300 ease-linear"
           onButtonClick={(e) => {
             e.preventDefault();
             submitAttendance();
