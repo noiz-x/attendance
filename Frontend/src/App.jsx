@@ -12,7 +12,6 @@ import Signup from "./components/Signup";
 function App() {
   return (
     <Router>
-      <Navbar />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -22,6 +21,7 @@ function App() {
           element={
             <ProtectedRoute>
               <div className="w-screen p-4 md:p-8">
+                <Navbar />
                 <Day />
                 <Attendance />
                 <Timetable />

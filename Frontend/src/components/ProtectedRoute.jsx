@@ -1,13 +1,13 @@
 // Frontend/src/components/ProtectedRoute.jsx
-import React from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
+import { AuthContext } from "../AuthContext";
 
 /**
- * ProtectedRoute component ensures that only authenticated users can access the children.
- * It checks for a JWT token in localStorage; if not found, it redirects to the login page.
+ * ProtectedRoute ensures that only authenticated users can access its children.
  */
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("access_token");
+  const { token } = useContext(AuthContext);
   return token ? children : <Navigate to="/login" />;
 };
 

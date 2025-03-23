@@ -20,7 +20,7 @@ export default function Navbar() {
 
   const handleSignOut = () => {
     // Clear token and redirect to login page
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("access");
     navigate("/login");
   };
 

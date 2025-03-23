@@ -1,22 +1,23 @@
 // Frontend/src/components/Login.jsx
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AccountService from "../services/accountService";
+import { AuthContext } from "../AuthContext";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { setToken } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     try {
       const response = await AccountService.login({ username, password });
-      // Assuming the token is in response.data.access
-      localStorage.setItem("access_token", response.data.access);
+      // Assuming token is in response.data.access
+      setToken(response.data.access);
       navigate("/");
     } catch (err) {
       setError("Login failed. Please check your credentials.");

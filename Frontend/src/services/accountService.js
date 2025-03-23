@@ -12,7 +12,11 @@ const AccountService = {
   // Logout (using POST method; you can also implement the GET endpoint as needed)
   logout: () => {
     // POST /accounts/logout/
-    return api.post("accounts/logout/");
+    return api.post("accounts/logout/").then((response) => {
+      // Remove the access token from local storage or cookies
+      localStorage.removeItem("accessToken");
+      return response;
+    });
   },
 
   // Registration
