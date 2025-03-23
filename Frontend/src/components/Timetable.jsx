@@ -1,5 +1,4 @@
 // Frontend/src/components/Timetable.jsx
-
 import React from "react";
 
 const LectureCard = ({ lectureTime, lectureTheatre }) => (
@@ -10,7 +9,6 @@ const LectureCard = ({ lectureTime, lectureTheatre }) => (
 );
 
 const Timetable = () => {
-  // Example lecture data array; replace or populate dynamically as needed.
   const lectures = [
     { lectureTime: "13:00 - 14:00", lectureTheatre: "EEE 251 @ ODLT 1" },
     { lectureTime: "14:00 - 15:00", lectureTheatre: "EEE 252 @ ODLT 2" },

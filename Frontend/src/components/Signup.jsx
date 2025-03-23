@@ -1,8 +1,7 @@
 // Frontend/src/components/Signup.jsx
-
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import AccountService from "../services/accountService";
 
 const Signup = () => {
   const [username, setUsername] = useState("");
@@ -21,14 +20,14 @@ const Signup = () => {
       return;
     }
     try {
-      await axios.post("http://127.0.0.1:8000/accounts/registration/", {
+      await AccountService.registration({
         username,
         email,
         password1,
         password2,
         role,
       });
-      navigate("/login"); // redirect to login page after signup
+      navigate("/login");
     } catch (err) {
       setError("Signup failed. Please check your details.");
     }

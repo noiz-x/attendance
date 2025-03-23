@@ -1,8 +1,8 @@
 // Frontend/src/components/Attendance.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import AttendanceService from "../services/attendanceService";
 
-// Sample LectureCard component remains unchanged
 const LectureCard = ({
   lectureTime,
   lectureTheatre,
@@ -35,20 +35,18 @@ const LectureCard = ({
 };
 
 const Attendance = () => {
-  // Sample static lecture data; adjust as needed.
+  // Sample lecture data; ideally this comes from your backend.
   const lectureData = {
     lectureTime: "10:00 - 11:00",
     lectureTheatre: "HSLT C",
     course: "MTH 201",
-    lectureId: "1", // Replace with actual lecture id from backend
+    lectureId: "1",
   };
 
-  // Example state for user location
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [message, setMessage] = useState("");
 
-  // Fetch the user's geolocation when the component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -64,28 +62,13 @@ const Attendance = () => {
     }
   }, []);
 
-  // Function to submit attendance to the backend
   const submitAttendance = async () => {
-    // Replace with your actual API endpoint
-    const apiUrl = "http://127.0.0.1:8000/api/attendance/";
-
-    // You should retrieve your JWT token from localStorage or context if using authentication
-    const token = localStorage.getItem("access_token");
-
     try {
-      const response = await axios.post(
-        apiUrl,
-        {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          lecture_id: lectureData.lectureId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await AttendanceService.recordAttendance({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        lecture_id: lectureData.lectureId,
+      });
       setMessage(response.data.message);
     } catch (error) {
       console.error("Attendance submission error:", error);
@@ -98,7 +81,6 @@ const Attendance = () => {
       <h1 className="text-xl">Attendance</h1>
       {message && <p className="text-center my-4">{message}</p>}
       <form className="flex gap-4 mt-3">
-        {/* Current Lecture Attendance Card */}
         <LectureCard
           {...lectureData}
           buttonText="Mark Attendance"
@@ -109,7 +91,6 @@ const Attendance = () => {
             submitAttendance();
           }}
         />
-        {/* Next Lecture (example disabled button) */}
         <LectureCard
           {...lectureData}
           buttonText="Attendance"

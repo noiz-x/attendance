@@ -1,8 +1,8 @@
 // Frontend/src/components/Login.jsx
-
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import AccountService from "../services/accountService";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -14,16 +14,10 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/accounts/login/",
-        {
-          username,
-          password,
-        }
-      );
-      // Assume JWT token is returned in response.data.access
+      const response = await AccountService.login({ username, password });
+      // Assuming the token is in response.data.access
       localStorage.setItem("access_token", response.data.access);
-      navigate("/"); // redirect to homepage after login
+      navigate("/");
     } catch (err) {
       setError("Login failed. Please check your credentials.");
     }

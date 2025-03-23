@@ -1,5 +1,4 @@
 // Frontend/src/components/Day.jsx
-
 import { useState } from "react";
 
 const daysShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -33,10 +32,7 @@ const DayButton = ({ currentDate, offset, isCurrent, onSelect }) => {
 const Day = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  // Helper function to change the current date.
   const changeDate = (date) => setCurrentDate(date);
-
-  // Week navigation handlers.
   const shiftDate = (days) =>
     setCurrentDate((prev) => {
       const d = new Date(prev);
@@ -61,14 +57,10 @@ const Day = () => {
 
   return (
     <div className="w-full flex flex-col items-center gap-3 md:gap-6 mb-8">
-      {/* Static Month Display */}
       <div className="text-xl font-bold">
         {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
       </div>
-
-      {/* Day Picker */}
       <div className="flex h-[125px] items-center gap-2 md:gap-6 w-full">
-        {/* Previous Week */}
         <button
           className="rounded-md hidden cursor-pointer h-[100px] w-12 md:flex items-center justify-center bg-neutral-50"
           onClick={() => shiftDate(-7)}
@@ -88,7 +80,6 @@ const Day = () => {
             />
           </svg>
         </button>
-
         <div className="w-full flex items-center gap-3 md:gap-6">
           <DayButton
             currentDate={currentDate}
@@ -117,8 +108,6 @@ const Day = () => {
             onSelect={changeDate}
           />
         </div>
-
-        {/* Next Week */}
         <button
           className="rounded-md hidden h-[100px] w-12 cursor-pointer md:flex items-center justify-center bg-neutral-50"
           onClick={() => shiftDate(7)}
@@ -139,8 +128,6 @@ const Day = () => {
           </svg>
         </button>
       </div>
-
-      {/* Mobile Week Nav */}
       <div className="flex md:hidden h-12 w-full gap-4">
         <button
           className="rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
