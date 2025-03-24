@@ -314,7 +314,8 @@ dist
 # Custom
 .vite/
 .vscode/
-Todo.md
+TODO.md
+TODOwnload.md
 *.jpg
 *.png
 *.jpeg
