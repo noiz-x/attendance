@@ -69,7 +69,7 @@ export default function Navbar() {
                         className={classNames(
                           item.current
                             ? "bg-gray-900 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                            : "text-black hover:bg-gray-500 hover:text-white",
                           "rounded-md px-3 py-2 text-sm font-medium"
                         )}
                         aria-current={item.current ? "page" : undefined}
@@ -104,11 +104,11 @@ export default function Navbar() {
                   </div>
                   <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <MenuItem>
-                      {({ active }) => (
+                      {({ focus }) => (
                         <Link
                           to="/profile"
                           className={classNames(
-                            active ? "bg-gray-100" : "",
+                            focus ? "bg-gray-100" : "",
                             "block px-4 py-2 text-sm text-gray-700"
                           )}
                         >
@@ -117,11 +117,11 @@ export default function Navbar() {
                       )}
                     </MenuItem>
                     <MenuItem>
-                      {({ active }) => (
+                      {({ focus }) => (
                         <Link
                           to="/settings"
                           className={classNames(
-                            active ? "bg-gray-100" : "",
+                            focus ? "bg-gray-100" : "",
                             "block px-4 py-2 text-sm text-gray-700"
                           )}
                         >
@@ -130,11 +130,11 @@ export default function Navbar() {
                       )}
                     </MenuItem>
                     <MenuItem>
-                      {({ active }) => (
+                      {({ focus }) => (
                         <button
                           onClick={handleSignOut}
                           className={classNames(
-                            active ? "bg-gray-100" : "",
+                            focus ? "bg-gray-100" : "",
                             "block w-full text-left px-4 py-2 text-sm text-gray-700"
                           )}
                         >

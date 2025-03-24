@@ -17,7 +17,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         {/* Protected routes */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <div className="w-screen p-4 md:p-8">

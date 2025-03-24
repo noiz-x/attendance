@@ -1,4 +1,5 @@
 // Frontend/src/components/Login.jsx
+
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AccountService from "../services/accountService";
@@ -7,20 +8,27 @@ import { AuthContext } from "../AuthContext";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  // Set initial loading state to false
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { setToken } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError("");
     try {
       const response = await AccountService.login({ username, password });
       // Assuming token is in response.data.access
       setToken(response.data.access);
       navigate("/");
-    } catch (err) {
-      setError("Login failed. Please check your credentials.");
+    } catch (error) {
+      // Extract non_field_errors from the error response if they exist
+      const nonFieldErrors = error.response?.data?.non_field_errors;
+      setError(nonFieldErrors || error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,15 +64,28 @@ const Login = () => {
               required
             />
           </div>
-          <button
-            type="submit"
-            className="w-full py-3 mt-4 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
-          >
-            Login
-          </button>
+          <div class="flex items-center justify-center">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-2 mt-4 text-white rounded-md transition duration-300 ${
+                loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              <div class="flex items-center justify-center m-[10px]">
+                <div
+                  class={`${
+                    loading &&
+                    "h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4"
+                  }`}
+                ></div>
+                <div class="ml-2">{loading ? "Processing..." : "Login"}</div>
+              </div>
+            </button>
+          </div>
         </form>
         <p className="text-center">
-          Don't have an account?{" "}
+          Don't have an account?&nbsp;&nbsp;
           <Link to="/signup" className="text-blue-600 hover:underline">
             Sign Up
           </Link>

@@ -14,11 +14,20 @@ import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router-dom";
 import AccountService from "../services/accountService";
 
-const navigation = [
-  { name: "Dashboard", href: "/", current: true },
-  { name: "Attendance", href: "/attendance", current: false },
-  { name: "Timetable", href: "/timetable", current: false },
-];
+const backendResponse = {
+  "courses": "http://127.0.0.1:8000/courses/",
+  "lectures": "http://127.0.0.1:8000/lectures/",
+  "registrations": "http://127.0.0.1:8000/registrations/",
+  "attendance": "http://127.0.0.1:8000/attendance/",
+};
+
+const navigation = Object.entries(backendResponse).map(([key, url]) => {
+  // Parse the URL and remove any trailing slash from the pathname
+  const path = new URL(url).pathname.replace(/\/$/, "");
+  // Capitalize the key for a nicer display name
+  const name = key.charAt(0).toUpperCase() + key.slice(1);
+  return { name, href: path, current: false };
+});
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -91,7 +100,7 @@ export default function Navbar() {
                           item.current
                             ? "bg-black text-white"
                             : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "rounded-md px-3 py-2 text-sm font-medium"
+                          "rounded-md text- px-3 py-2 text-sm font-medium"
                         )}
                         aria-current={item.current ? "page" : undefined}
                       >

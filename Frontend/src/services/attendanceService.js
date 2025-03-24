@@ -5,68 +5,68 @@ import api from "./api";
 const AttendanceService = {
   // Record attendance via geolocation
   recordAttendance: (data) => {
-    // POST /api/attendance/
-    return api.post("api/attendance/", data);
+    // POST /attendance/
+    return api.post("attendance/", data);
   },
 
   // List all courses
   listCourses: () => {
-    // GET /api/courses/
-    return api.get("api/courses/");
+    // GET /courses/
+    return api.get("courses/");
   },
 
   // Get details for a specific course by ID
   getCourse: (id) => {
-    // GET /api/courses/{id}/
-    return api.get(`api/courses/${id}/`);
+    // GET /courses/{id}/
+    return api.get(`courses/${id}/`);
   },
 
   // List all lectures
   listLectures: () => {
-    // GET /api/lectures/
-    return api.get("api/lectures/");
+    // GET /lectures/
+    return api.get("lectures/");
   },
 
   // Get details for a specific lecture by ID
   getLecture: (id) => {
-    // GET /api/lectures/{id}/
-    return api.get(`api/lectures/${id}/`);
+    // GET /lectures/{id}/
+    return api.get(`lectures/${id}/`);
   },
 
   // List registrations
   listRegistrations: () => {
-    // GET /api/registrations/
-    return api.get("api/registrations/");
+    // GET /registrations/
+    return api.get("registrations/");
   },
 
   // Create a new registration
   createRegistration: (data) => {
-    // POST /api/registrations/
-    return api.post("api/registrations/", data);
+    // POST /registrations/
+    return api.post("registrations/", data);
   },
 
   // Get a registration by ID
   getRegistration: (id) => {
-    // GET /api/registrations/{id}/
-    return api.get(`api/registrations/${id}/`);
+    // GET /registrations/{id}/
+    return api.get(`registrations/${id}/`);
   },
 
   // Update a registration (full update)
   updateRegistration: (id, data) => {
-    // PUT /api/registrations/{id}/
-    return api.put(`api/registrations/${id}/`, data);
+    // PUT /registrations/{id}/
+    return api.put(`registrations/${id}/`, data);
   },
 
   // Partial update of a registration
   partialUpdateRegistration: (id, data) => {
-    // PATCH /api/registrations/{id}/
-    return api.patch(`api/registrations/${id}/`, data);
+    // PATCH /registrations/{id}/
+    return api.patch(`registrations/${id}/`, data);
   },
 
   // Delete a registration
   deleteRegistration: (id) => {
-    // DELETE /api/registrations/{id}/
-    return api.delete(`api/registrations/${id}/`);
+    // DELETE /registrations/{id}/
+    return api.delete(`registrations/${id}/`);
   },
 };
 
