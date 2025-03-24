@@ -1,26 +1,29 @@
 // Frontend/src/components/Navbar.jsx
 
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Menu as MenuIcon, X as XIcon, Bell } from "lucide-react"; // using lucide-react for icons
-import AccountService from "../services/accountService";
+"use client";
 
-// Import shadcn UI components
+import React, { useState, useEffect } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Menu as MenuIcon, Bell, Terminal } from "lucide-react";
+import AccountService from "../services/accountService";
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 const backendResponse = {
@@ -31,16 +34,10 @@ const backendResponse = {
 };
 
 const navigation = Object.entries(backendResponse).map(([key, url]) => {
-  // Parse the URL and remove any trailing slash from the pathname
   const path = new URL(url).pathname.replace(/\/$/, "");
-  // Capitalize the key for a nicer display name
   const name = key.charAt(0).toUpperCase() + key.slice(1);
   return { name, href: path };
 });
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -49,7 +46,6 @@ export default function Navbar() {
   // Only show Navbar if a token exists.
   if (!token) return null;
 
-  // State for user details.
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -75,27 +71,30 @@ export default function Navbar() {
     <header className="bg-gray-100 mb-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Mobile Menu using Sheet */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" className="sm:hidden">
-                <MenuIcon className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="sm:hidden">
-              <nav className="space-y-2">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-200"
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+          {/* Mobile Navigation using NavigationMenu */}
+          <NavigationMenu className="sm:hidden">
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>
+                  <MenuIcon className="h-6 w-6" />
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="bg-white">
+                  <ul className="grid gap-2 p-4">
+                    {navigation.map((item) => (
+                      <li key={item.name}>
+                        <Link
+                          to={item.href}
+                          className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-200 "
+                        >
+                          {item.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {/* Logo and Desktop Navigation */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
@@ -106,57 +105,71 @@ export default function Navbar() {
                 alt="Your Company"
               />
             </Link>
-            <nav className="hidden sm:ml-6 sm:flex sm:space-x-4">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={classNames(
-                    "rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
+            <NavigationMenu className="hidden sm:block ml-6">
+              <NavigationMenuList className="flex space-x-4">
+                {navigation.map((item) => (
+                  <NavigationMenuItem key={item.name}>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        to={item.href}
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        {item.name}
+                      </Link>
+                      {/* <DropdownMenuSeparator/> */}
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
 
           {/* Right Side: Notifications & Profile Dropdown */}
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="p-1">
-              <Bell className="h-6 w-6 text-gray-600" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="rounded-full">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt="User Avatar"
-                  />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white w-48">
-                <DropdownMenuItem asChild>
-                  <Link to="/accounts/user/" className="flex items-center">
-                    {loading
-                      ? "Loading..."
-                      : user
-                      ? user.username
-                      : "Your Profile"}
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-black"/>
-                <DropdownMenuItem asChild>
-                  <Link to="/settings">Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-black"/>
-                <DropdownMenuItem onClick={handleSignOut}>
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="cursor-pointer p-1">
+                <Bell className="h-6 w-6 text-gray-600" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-white">
+              <Alert>
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Heads up!</AlertTitle>
+                <AlertDescription>
+                  You can add components to your app using the CLI.
+                </AlertDescription>
+              </Alert>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="cursor-pointer rounded-full">
+                <Avatar>
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-white w-48">
+              <DropdownMenuItem asChild>
+                <Link to="/accounts/user/" className="flex items-center">
+                  {loading
+                    ? "Loading..."
+                    : user
+                    ? user.username
+                    : "Your Profile"}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-black" />
+              <DropdownMenuItem asChild>
+                <Link to="/settings">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-black" />
+              <DropdownMenuItem onClick={handleSignOut}>
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
