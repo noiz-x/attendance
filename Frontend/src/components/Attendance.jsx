@@ -1,7 +1,36 @@
 // Frontend/src/components/Attendance.jsx
+
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 import AttendanceService from "../services/attendanceService";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+const ErrorModal = ({ isOpen, onClose, errorMessage }) => (
+  <Dialog open={isOpen} onOpenChange={onClose}>
+    <DialogContent className="bg-white">
+      <DialogHeader>
+        <DialogTitle>Error</DialogTitle>
+        <DialogDescription className="text-red-600">{errorMessage}</DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <Button onClick={onClose} className="border border-black hover:bg-gray-300">Close</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+);
 
 const LectureCard = ({
   lectureTime,
@@ -10,27 +39,31 @@ const LectureCard = ({
   lectureId,
   buttonText,
   buttonDisabled = false,
-  containerClasses,
-  buttonClasses,
   onButtonClick,
+  className = "",
 }) => {
   return (
-    <div className={containerClasses}>
-      <div className="w-full flex flex-col">
-        <h1 className="text-lg font-bold">{lectureTime}</h1>
+    <Card className={`w-full bg-neutral-50 ${className}`}>
+      <CardHeader>
+        <CardTitle className="text-lg font-bold">{lectureTime}</CardTitle>
         <p className="text-sm">{lectureTheatre}</p>
         {course && <p className="text-sm">{course}</p>}
         <input type="hidden" value={lectureId} />
-      </div>
-      <button
-        type="submit"
-        className={buttonClasses}
-        disabled={buttonDisabled}
-        onClick={onButtonClick}
-      >
-        {buttonText}
-      </button>
-    </div>
+      </CardHeader>
+      <CardContent>
+        <Button
+          onClick={onButtonClick}
+          disabled={buttonDisabled}
+          className={`w-full py-3 rounded-md transition duration-300 ease-linear ${
+            buttonDisabled
+              ? "bg-neutral-500 text-white"
+              : "bg-black hover:bg-gray-700 text-white"
+          }`}
+        >
+          {buttonText}
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -40,11 +73,15 @@ const Attendance = () => {
     lectureTime: "10:00 - 11:00",
     lectureTheatre: "HSLT C",
     course: "MTH 201",
-    lectureId: "1",
+    lectureId: 2,
   };
 
-  const [location, setLocation] = useState({ latitude: null, longitude: null });
+  const [location, setLocation] = useState({
+    latitude: null,
+    longitude: null,
+  });
   const [message, setMessage] = useState("");
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -56,13 +93,31 @@ const Attendance = () => {
           });
         },
         (error) => {
-          console.error("Error fetching location:", error);
+          let errMsg;
+          if (error.code === 1) {
+            // PERMISSION_DENIED is typically code 1
+            errMsg = "Location permission is required to mark attendance.";
+          } else {
+            errMsg = `Error fetching location: ${error.message}`;
+          }
+          setMessage(errMsg);
+          setErrorModalOpen(true);
         }
       );
     }
   }, []);
 
-  const submitAttendance = async () => {
+  const submitAttendance = async (e) => {
+    e.preventDefault();
+
+    // If location is not set, show error modal.
+    if (location.latitude === null || location.longitude === null) {
+      const errMsg = "Cannot submit attendance without location permission.";
+      setMessage(errMsg);
+      setErrorModalOpen(true);
+      return;
+    }
+
     try {
       const response = await AttendanceService.recordAttendance({
         latitude: location.latitude,
@@ -71,35 +126,43 @@ const Attendance = () => {
       });
       setMessage(response.data.message);
     } catch (error) {
-      console.error("Attendance submission error:", error);
-      setMessage("Error submitting attendance.");
+      // Assuming error.request.response is a JSON string.
+      const errorDetail = JSON.parse(error.request.response).detail;
+      setMessage(errorDetail);
+      setErrorModalOpen(true);
     }
   };
 
   return (
-    <>
+    <div>
       <h1 className="text-xl">Attendance</h1>
-      {message && <p className="text-center my-4">{message}</p>}
-      <form className="flex gap-4 mt-3">
-        <LectureCard
-          {...lectureData}
-          buttonText="Mark Attendance"
-          containerClasses="flex w-full md:w-1/2 p-6 gap-4 md:gap-[40%] items-center bg-neutral-50"
-          buttonClasses="cursor-pointer bg-black hover:bg-gray-700 text-white py-3 px-auto w-full rounded-md h-fit transition duration-300 ease-linear"
-          onButtonClick={(e) => {
-            e.preventDefault();
-            submitAttendance();
-          }}
-        />
-        <LectureCard
-          {...lectureData}
-          buttonText="Attendance"
-          buttonDisabled={true}
-          containerClasses="hidden md:flex w-1/2 p-2 md:p-6 gap-4 md:gap-[40%] items-center bg-neutral-50"
-          buttonClasses="cursor-pointer bg-neutral-500 text-white py-3 px-auto w-full rounded-md h-fit"
-        />
+      <form className="mt-3" onSubmit={submitAttendance}>
+        <ResizablePanelGroup direction="horizontal" className="sm:w-full gap-2">
+          <ResizablePanel>
+            <LectureCard
+              {...lectureData}
+              buttonText="Mark Attendance"
+              onButtonClick={submitAttendance}
+              className="p-6"
+            />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel className="hidden md:block">
+            <LectureCard
+              {...lectureData}
+              buttonText="Attendance"
+              buttonDisabled={true}
+              className="p-6"
+            />
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </form>
-    </>
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        errorMessage={message}
+      />
+    </div>
   );
 };
 
