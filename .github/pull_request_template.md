@@ -1,4 +1,11 @@
-# Pull Request Template
+---
+name: Pull request
+about: Propose new features or improvements for Attendance, the lecture hall attendance tracking system.
+title: "[PULL REQUEST]"
+labels: enhancement, bug, documentation
+assignees: noiz-x, Xpektra7
+
+---
 
 ## Overview
 - **Description:**  
