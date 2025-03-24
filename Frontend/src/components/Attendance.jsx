@@ -23,10 +23,38 @@ const ErrorModal = ({ isOpen, onClose, errorMessage }) => (
     <DialogContent className="bg-white">
       <DialogHeader>
         <DialogTitle>Error</DialogTitle>
-        <DialogDescription className="text-red-600">{errorMessage}</DialogDescription>
+        <DialogDescription className="text-red-600">
+          {errorMessage}
+        </DialogDescription>
       </DialogHeader>
       <DialogFooter>
-        <Button onClick={onClose} className="border border-black hover:bg-gray-300">Close</Button>
+        <Button
+          onClick={onClose}
+          className="border border-black hover:bg-gray-300"
+        >
+          Close
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+);
+
+const SuccessModal = ({ isOpen, onClose, successMessage }) => (
+  <Dialog open={isOpen} onOpenChange={onClose}>
+    <DialogContent className="bg-white">
+      <DialogHeader>
+        <DialogTitle>Success</DialogTitle>
+        <DialogDescription className="text-green-600">
+          {successMessage}
+        </DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <Button
+          onClick={onClose}
+          className="border border-black hover:bg-gray-300"
+        >
+          Close
+        </Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>
@@ -80,8 +108,10 @@ const Attendance = () => {
     latitude: null,
     longitude: null,
   });
-  const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -100,7 +130,7 @@ const Attendance = () => {
           } else {
             errMsg = `Error fetching location: ${error.message}`;
           }
-          setMessage(errMsg);
+          setErrorMessage(errMsg);
           setErrorModalOpen(true);
         }
       );
@@ -110,10 +140,10 @@ const Attendance = () => {
   const submitAttendance = async (e) => {
     e.preventDefault();
 
-    // If location is not set, show error modal.
+    // Guard: if location is not set, show error modal.
     if (location.latitude === null || location.longitude === null) {
       const errMsg = "Cannot submit attendance without location permission.";
-      setMessage(errMsg);
+      setErrorMessage(errMsg);
       setErrorModalOpen(true);
       return;
     }
@@ -124,11 +154,16 @@ const Attendance = () => {
         longitude: location.longitude,
         lecture_id: lectureData.lectureId,
       });
-      setMessage(response.data.message);
+      // On success, show the success modal.
+      setSuccessMessage("Your attendance has been marked.");
+      setSuccessModalOpen(true);
     } catch (error) {
-      // Assuming error.request.response is a JSON string.
-      const errorDetail = JSON.parse(error.request.response).detail;
-      setMessage(errorDetail);
+      let errorDetail = "An unknown error occurred.";
+      // Check if error.response exists and contains an 'error' key.
+      if (error.response && error.response.data && error.response.data.error) {
+        errorDetail = error.response.data.error;
+      }
+      setErrorMessage(errorDetail);
       setErrorModalOpen(true);
     }
   };
@@ -160,7 +195,12 @@ const Attendance = () => {
       <ErrorModal
         isOpen={errorModalOpen}
         onClose={() => setErrorModalOpen(false)}
-        errorMessage={message}
+        errorMessage={errorMessage}
+      />
+      <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        successMessage={successMessage}
       />
     </div>
   );
