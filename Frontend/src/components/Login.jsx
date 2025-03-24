@@ -6,87 +6,121 @@ import AccountService from "../services/accountService";
 import { AuthContext } from "../AuthContext";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(""); // Updated from username to username
   const [password, setPassword] = useState("");
-  // Set initial loading state to false
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Initialize loading state to false
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { setToken } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); // Set loading to true when login process starts
     setError("");
     try {
-      const response = await AccountService.login({ username, password });
+      const response = await AccountService.login({ username, password }); // Updated to use username
       // Assuming token is in response.data.access
       setToken(response.data.access);
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       // Extract non_field_errors from the error response if they exist
       const nonFieldErrors = error.response?.data?.non_field_errors;
-      setError(nonFieldErrors || error);
+      setError(nonFieldErrors || "An error occurred during login.");
+      setPassword("")
     } finally {
-      setLoading(false);
+      setLoading(false); // Reset loading state after login process completes
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-neutral-100">
-      <div className="w-full max-w-md p-8 space-y-4 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center">Login</h2>
+    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <img
+          alt="Your Company"
+          src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+          className="mx-auto h-10 w-auto"
+        />
+        <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+          Sign in to your account
+        </h2>
+      </div>
+
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         {error && <p className="text-red-500 text-center">{error}</p>}
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label htmlFor="username" className="block mb-1 font-medium">
+            <label
+              htmlFor="username"
+              className="block text-sm/6 font-medium text-gray-900"
+            >
               Username
             </label>
-            <input
-              type="text"
-              id="username"
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+            <div className="mt-2">
+              <input
+                id="username"
+                name="username"
+                type="username"
+                required
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+              />
+            </div>
           </div>
+
           <div>
-            <label htmlFor="password" className="block mb-1 font-medium">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="password"
+                className="block text-sm/6 font-medium text-gray-900"
+              >
+                Password
+              </label>
+              <div className="text-sm">
+                <a
+                  href="#"
+                  className="font-semibold text-indigo-600 hover:text-indigo-500"
+                >
+                  <Link to="/forgot-password">Forgot password?</Link>
+                </a>
+              </div>
+            </div>
+            <div className="mt-2">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+              />
+            </div>
           </div>
-          <div class="flex items-center justify-center">
+
+          <div>
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-2 mt-4 text-white rounded-md transition duration-300 ${
-                loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+              className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                loading
+                  ? "bg-indigo-400 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-500"
               }`}
             >
-              <div class="flex items-center justify-center m-[10px]">
-                <div
-                  class={`${
-                    loading &&
-                    "h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4"
-                  }`}
-                ></div>
-                <div class="ml-2">{loading ? "Processing..." : "Login"}</div>
-              </div>
+              {loading ? "Processing..." : "Sign in"}
             </button>
           </div>
         </form>
-        <p className="text-center">
+
+        <p className="mt-10 text-center text-sm/6 text-gray-500">
           Don't have an account?&nbsp;&nbsp;
-          <Link to="/signup" className="text-blue-600 hover:underline">
+          <Link
+            to="/signup"
+            className="font-semibold text-indigo-600 hover:text-indigo-500"
+          >
             Sign Up
           </Link>
         </p>
