@@ -10,3 +10,7 @@
 .currentDay {
   @apply flex flex-col h-[125px] items-center justify-center gap-2 p-4 bg-neutral-100 ring w-1/5 rounded-md font-bold cursor-pointer;
 }
+
+*:no-button{
+  @apply text-neutral-800;
+}
