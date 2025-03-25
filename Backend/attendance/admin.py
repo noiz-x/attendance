@@ -42,7 +42,7 @@ class LectureAdmin(admin.ModelAdmin):
     Admin configuration for Lecture model.
     Displays course, theatre, dates, and times; allows filtering and search.
     """
-    list_display = ('course', 'theatre', 'start_date', 'end_date', 'start_time', 'end_time')
+    list_display = ('course', 'theatre', 'start_date', 'start_time', 'end_time')
     list_filter = ('course', 'theatre')
     search_fields = ('course__course_code', 'theatre__name')
 

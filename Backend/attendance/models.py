@@ -55,14 +55,13 @@ class Lecture(models.Model):
     Represents a recurring lecture for a course.
     Includes the course, venue (theatre), timing details, and recurrence rules.
     """
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lectures')
-    theatre = models.ForeignKey(Theatre, on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='lectures')
+    theatre = models.ForeignKey('Theatre', on_delete=models.CASCADE)
     start_date = models.DateField(default=timezone.now, help_text="Date when recurrence begins")
-    end_date = models.DateField(help_text="Date until which this lecture recurs")
     start_time = models.TimeField(help_text="Start time for the lecture occurrence")
     end_time = models.TimeField(help_text="End time for the lecture occurrence")
     recurrence = recurrence.fields.RecurrenceField(
-        help_text="Recurrence rule (e.g. every Monday and Friday)",
+        help_text="Recurrence rule (e.g. every Monday and Friday with a repeat until date)",
         null=True,
         blank=True
     )

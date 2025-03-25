@@ -1,7 +1,7 @@
 # Backend/attendance/views.py
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -52,16 +52,42 @@ class LectureViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         date_str = self.request.query_params.get('date')
-        print(date_str)
         if date_str:
             try:
                 selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                # Assuming your Lecture model has a date field named 'start_date'
-                queryset = queryset.filter(start_date=selected_date)
             except ValueError:
-                # Handle the error for invalid date formats if necessary
-                pass
+                # If the provided date is invalid, return the full queryset
+                return queryset
+
+            filtered_lectures = []
+            for lecture in queryset:
+                # Create the first occurrence datetime using lecture's start_date and start_time
+                dtstart = datetime.combine(lecture.start_date, lecture.start_time)
+                # If there's no recurrence, just compare the start date.
+                if not lecture.recurrence:
+                    if dtstart.date() == selected_date:
+                        filtered_lectures.append(lecture)
+                else:
+                    # Determine the window for computing occurrences.
+                    dtend = None
+                    # Check if any recurrence rule has a "repeat until" date.
+                    for rule in lecture.recurrence.rrules:
+                        if rule.until:
+                            dtend = rule.until
+                            break
+                    # Default to a 30-day window if no "until" is specified.
+                    if dtend is None:
+                        dtend = dtstart + timedelta(days=30)
+                    
+                    # Compute occurrences within the window.
+                    occurrences = lecture.recurrence.between(dtstart, dtend, dtstart=dtstart)
+                    
+                    # Check if any occurrence falls on the selected date.
+                    if any(occ.date() == selected_date for occ in occurrences):
+                        filtered_lectures.append(lecture)
+            queryset = filtered_lectures
         return queryset
+
 
 class RegistrationViewSet(viewsets.ModelViewSet):
     """

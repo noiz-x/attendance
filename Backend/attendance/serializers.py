@@ -7,6 +7,7 @@ This module defines serializers for the attendance app models,
 specifically for creating attendance records.
 """
 
+from datetime import datetime, timedelta
 from rest_framework import serializers
 from django.db import transaction, IntegrityError
 from .models import Attendance, Lecture, Course, Registration
@@ -47,9 +48,49 @@ class LectureSerializer(serializers.ModelSerializer):
     can be used to validate and transform data related to lectures.
     """
 
+    occurrences = serializers.SerializerMethodField()
+
     class Meta:
         model = Lecture
-        fields = '__all__'
+        fields = [
+            'id',
+            'course',
+            'theatre',
+            'start_date',
+            'start_time',
+            'end_time',
+            'recurrence',
+            'occurrences'
+        ]
+
+    def get_occurrences(self, obj):
+        """
+        Compute lecture occurrences based on the recurrence field's "repeat until" value.
+        - Combines start_date and start_time to form the initial occurrence datetime.
+        - Attempts to extract an "until" datetime from the recurrence rule.
+        - If no "until" is provided, defaults to a window of 30 days.
+        - Uses the recurrence's built-in between() method to list occurrences.
+        """
+        dtstart = datetime.combine(obj.start_date, obj.start_time)
+
+        # No recurrence? Return the starting occurrence.
+        if not obj.recurrence:
+            return [dtstart.isoformat()]
+
+        dtend = None
+        # Look for the "until" property in the recurrence rules.
+        # (Assuming a single rule; if multiple rules exist, you may need to adjust this logic.)
+        for rule in obj.recurrence.rrules:
+            if rule.until:
+                dtend = rule.until
+                break
+
+        # If no until is specified in the recurrence rule, default to 30 days from the start.
+        if dtend is None:
+            dtend = dtstart + timedelta(days=30)
+
+        occurrences = obj.recurrence.between(dtstart, dtend, dtstart=dtstart)
+        return [occ.isoformat() for occ in occurrences]
 
 class CourseSerializer(serializers.ModelSerializer):
     """
