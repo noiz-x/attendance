@@ -66,12 +66,13 @@ class LectureSerializer(serializers.ModelSerializer):
     def get_occurrences(self, obj):
         """
         Compute lecture occurrences based on the recurrence field's "repeat until" value.
-        - Combines start_date and start_time to form the initial occurrence datetime.
+        - Combines start_date (offset by one week) and start_time to form the initial occurrence datetime.
         - Attempts to extract an "until" datetime from the recurrence rule.
         - If no "until" is provided, defaults to a window of 30 days.
         - Uses the recurrence's built-in between() method to list occurrences.
         """
-        dtstart = datetime.combine(obj.start_date, obj.start_time)
+        # Adjust dtstart to start one week before the actual start_date
+        dtstart = datetime.combine(obj.start_date - timedelta(weeks=1), obj.start_time)
 
         # No recurrence? Return the starting occurrence.
         if not obj.recurrence:
@@ -91,6 +92,7 @@ class LectureSerializer(serializers.ModelSerializer):
 
         occurrences = obj.recurrence.between(dtstart, dtend, dtstart=dtstart)
         return [occ.isoformat() for occ in occurrences]
+
 
 class CourseSerializer(serializers.ModelSerializer):
     """
