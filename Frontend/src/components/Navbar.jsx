@@ -131,7 +131,7 @@ export default function Navbar() {
                 <Bell className="h-6 w-6 text-gray-600" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-white">
+            <DropdownMenuContent className="bg-white w-[70%] md:w-full mx-auto">
               <Alert>
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Heads up!</AlertTitle>

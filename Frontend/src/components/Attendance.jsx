@@ -1,12 +1,10 @@
-// Frontend/src/components/Attendance.jsx
-
 import React, { useState, useEffect } from "react";
+import AttendanceService from "../services/attendanceService";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import AttendanceService from "../services/attendanceService";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,103 +15,54 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import moment from "moment-timezone";
 
-const ErrorModal = ({ isOpen, onClose, errorMessage }) => (
-  <Dialog open={isOpen} onOpenChange={onClose}>
-    <DialogContent className="bg-white">
-      <DialogHeader>
-        <DialogTitle>Error</DialogTitle>
-        <DialogDescription className="text-red-600">
-          {errorMessage}
-        </DialogDescription>
-      </DialogHeader>
-      <DialogFooter>
-        <Button
-          onClick={onClose}
-          className="border border-black hover:bg-gray-300"
-        >
-          Close
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-);
+const formatDate = (date) =>
+  moment(date).tz("Africa/Lagos").format("YYYY-MM-DD");
 
-const SuccessModal = ({ isOpen, onClose, successMessage }) => (
-  <Dialog open={isOpen} onOpenChange={onClose}>
-    <DialogContent className="bg-white">
-      <DialogHeader>
-        <DialogTitle>Success</DialogTitle>
-        <DialogDescription className="text-green-600">
-          {successMessage}
-        </DialogDescription>
-      </DialogHeader>
-      <DialogFooter>
-        <Button
-          onClick={onClose}
-          className="border border-black hover:bg-gray-300"
-        >
-          Close
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-);
 
-const LectureCard = ({
-  lectureTime,
-  lectureTheatre,
-  course,
-  lectureId,
-  buttonText,
-  buttonDisabled = false,
-  onButtonClick,
-  className = "",
-}) => {
-  return (
-    <Card className={`w-full bg-neutral-50 ${className}`}>
-      <CardHeader>
-        <CardTitle className="text-lg font-bold">{lectureTime}</CardTitle>
-        <p className="text-sm">{lectureTheatre}</p>
-        {course && <p className="text-sm">{course}</p>}
-        <input type="hidden" value={lectureId} />
-      </CardHeader>
-      <CardContent>
-        <Button
-          onClick={onButtonClick}
-          disabled={buttonDisabled}
-          className={`w-full py-3 rounded-md transition duration-300 ease-linear ${
-            buttonDisabled
-              ? "bg-neutral-500 text-white"
-              : "bg-black hover:bg-gray-700 text-white"
-          }`}
-        >
-          {buttonText}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-};
-
-const Attendance = () => {
-  // Sample lecture data; ideally this comes from your backend.
-  const lectureData = {
-    lectureTime: "10:00 - 11:00",
-    lectureTheatre: "HSLT C",
-    course: "MTH 201",
-    lectureId: 2,
-  };
-
-  const [location, setLocation] = useState({
-    latitude: null,
-    longitude: null,
-  });
+const Attendance = ({ selectedDate }) => {
+  const [lecture, setLecture] = useState(null);
+  const [nextLecture, setNextLecture] = useState(null);
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   useEffect(() => {
+    const fetchLectures = async () => {
+      try {
+        const response = await AttendanceService.listLectures({
+          date: formatDate(selectedDate),
+        });
+        const lectures = response.data.results;
+        const today = new Date();
+
+        if (formatDate(selectedDate) === formatDate(today)) {
+          const now = new Date();
+          const ongoingLecture = lectures.find((lec) => {
+            const startTime = new Date(`${lec.start_date}T${lec.start_time}`);
+            const endTime = new Date(`${lec.end_date}T${lec.end_time}`);
+            return now >= startTime && now <= endTime;
+          });
+          const upcomingLecture = lectures.find((lec) => {
+            const startTime = new Date(`${lec.start_date}T${lec.start_time}`);
+            return now < startTime;
+          });
+          setLecture(ongoingLecture);
+          setNextLecture(!ongoingLecture ? upcomingLecture : null);
+        } else {
+          setLecture(lectures.length > 0 ? lectures[0] : null);
+          setNextLecture(null);
+        }
+      } catch (error) {
+        console.error("Error fetching lectures:", error);
+      }
+    };
+
+    fetchLectures();
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -123,47 +72,30 @@ const Attendance = () => {
           });
         },
         (error) => {
-          let errMsg;
-          if (error.code === 1) {
-            // PERMISSION_DENIED is typically code 1
-            errMsg = "Location permission is required to mark attendance.";
-          } else {
-            errMsg = `Error fetching location: ${error.message}`;
-          }
-          setErrorMessage(errMsg);
+          setErrorMessage("Location permission is required to mark attendance.");
           setErrorModalOpen(true);
         }
       );
     }
-  }, []);
+  }, [selectedDate]);
 
-  const submitAttendance = async (e) => {
-    e.preventDefault();
-
-    // Guard: if location is not set, show error modal.
-    if (location.latitude === null || location.longitude === null) {
-      const errMsg = "Cannot submit attendance without location permission.";
-      setErrorMessage(errMsg);
+  const submitAttendance = async () => {
+    if (!lecture) {
+      setErrorMessage("No active lecture at this time.");
       setErrorModalOpen(true);
       return;
     }
 
     try {
-      const response = await AttendanceService.recordAttendance({
+      await AttendanceService.recordAttendance({
         latitude: location.latitude,
         longitude: location.longitude,
-        lecture_id: lectureData.lectureId,
+        lecture_id: lecture.id,
       });
-      // On success, show the success modal.
       setSuccessMessage("Your attendance has been marked.");
       setSuccessModalOpen(true);
     } catch (error) {
-      let errorDetail = "An unknown error occurred.";
-      // Check if error.response exists and contains an 'error' key.
-      if (error.response && error.response.data && error.response.data.error) {
-        errorDetail = error.response.data.error;
-      }
-      setErrorMessage(errorDetail);
+      setErrorMessage(error.response.data.error);
       setErrorModalOpen(true);
     }
   };
@@ -171,37 +103,89 @@ const Attendance = () => {
   return (
     <div>
       <h1 className="text-xl">Attendance</h1>
-      <form className="mt-3" onSubmit={submitAttendance}>
+      {lecture ? (
         <ResizablePanelGroup direction="horizontal" className="sm:w-full gap-2">
           <ResizablePanel>
-            <LectureCard
-              {...lectureData}
-              buttonText="Mark Attendance"
-              onButtonClick={submitAttendance}
-              className="p-6"
-            />
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel className="hidden md:block">
-            <LectureCard
-              {...lectureData}
-              buttonText="Attendance"
-              buttonDisabled={true}
-              className="p-6"
-            />
+            <Card className="w-full bg-neutral-50 p-6">
+              <CardHeader>
+                <CardTitle className="text-lg font-bold">
+                  {`${lecture.start_time} - ${lecture.end_time}`}
+                </CardTitle>
+                <p className="text-sm">Theatre ID: {lecture.theatre}</p>
+                <p className="text-sm">Course ID: {lecture.course}</p>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={submitAttendance}
+                  className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-700"
+                >
+                  Mark Attendance
+                </Button>
+              </CardContent>
+            </Card>
           </ResizablePanel>
         </ResizablePanelGroup>
-      </form>
-      <ErrorModal
-        isOpen={errorModalOpen}
-        onClose={() => setErrorModalOpen(false)}
-        errorMessage={errorMessage}
-      />
-      <SuccessModal
-        isOpen={successModalOpen}
-        onClose={() => setSuccessModalOpen(false)}
-        successMessage={successMessage}
-      />
+      ) : nextLecture ? (
+        <ResizablePanelGroup direction="horizontal" className="sm:w-full gap-2">
+          <ResizablePanel>
+            <Card className="w-full bg-neutral-50 p-6">
+              <CardHeader>
+                <CardTitle className="text-lg font-bold">
+                  {`${nextLecture.start_time} - ${nextLecture.end_time}`}
+                </CardTitle>
+                <p className="text-sm">Theatre ID: {nextLecture.theatre}</p>
+                <p className="text-sm">Course ID: {nextLecture.course}</p>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  disabled
+                  className="w-full bg-neutral-500 text-white py-3 rounded-md"
+                >
+                  Attendance Not Available Yet
+                </Button>
+              </CardContent>
+            </Card>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <p>No ongoing or upcoming lectures at this time.</p>
+      )}
+      <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Error</DialogTitle>
+            <DialogDescription className="text-red-600">
+              {errorMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setErrorModalOpen(false)}
+              className="border border-black hover:bg-gray-300"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Success</DialogTitle>
+            <DialogDescription className="text-green-600">
+              {successMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setSuccessModalOpen(false)}
+              className="border border-black hover:bg-gray-300"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

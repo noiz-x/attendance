@@ -4,13 +4,24 @@
 @import "tailwindcss";
 
 /* Custom classes */
-.day {
-  @apply opacity-70 h-[100px] flex flex-col justify-center items-center gap-2 p-4 bg-neutral-100 w-1/5 rounded-md cursor-pointer;
+.day2 {
+  @apply opacity-70 h-[75px] flex flex-col justify-center items-center gap-2 p-4 bg-neutral-50 w-1/5 border border-neutral-400 rounded-md cursor-pointer;
+}
+.day1 {
+  @apply opacity-70 h-[100px] flex flex-col justify-center items-center gap-2 p-4 bg-neutral-100 w-1/5 border border-neutral-600 rounded-md cursor-pointer;
 }
 .currentDay {
-  @apply flex flex-col h-[125px] items-center justify-center gap-2 p-4 bg-neutral-100 ring w-1/5 rounded-md font-bold cursor-pointer;
+  @apply flex flex-col h-[125px] items-center justify-center gap-2 p-4 bg-neutral-200 border border-neutral-800 w-1/5 rounded-md font-bold cursor-pointer;
 }
 
 *:no-button{
   @apply text-neutral-800;
+}
+
+html {
+  @apply overflow-x-hidden;
+}
+
+* {
+  box-sizing: border-box;
 }

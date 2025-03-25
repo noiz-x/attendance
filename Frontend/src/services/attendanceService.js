@@ -22,9 +22,9 @@ const AttendanceService = {
   },
 
   // List all lectures
-  listLectures: () => {
+  listLectures: (formattedDate) => {
     // GET /lectures/
-    return api.get("lectures/");
+    return api.get(`lectures/?date=${formattedDate.date}`);
   },
 
   // Get details for a specific lecture by ID

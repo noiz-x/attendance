@@ -1,6 +1,7 @@
 # Backend/attendance/views.py
 
 import logging
+from datetime import datetime
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -47,6 +48,20 @@ class LectureViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Lecture.objects.all()
     serializer_class = LectureSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        date_str = self.request.query_params.get('date')
+        print(date_str)
+        if date_str:
+            try:
+                selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                # Assuming your Lecture model has a date field named 'start_date'
+                queryset = queryset.filter(start_date=selected_date)
+            except ValueError:
+                # Handle the error for invalid date formats if necessary
+                pass
+        return queryset
 
 class RegistrationViewSet(viewsets.ModelViewSet):
     """

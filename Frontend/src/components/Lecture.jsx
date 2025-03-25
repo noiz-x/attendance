@@ -1,4 +1,5 @@
-// Frontend/src/components/Timetable.jsx
+// Frontend/src/components/Lecture.jsx
+
 import React from "react";
 
 const LectureCard = ({ lectureTime, lectureTheatre }) => (
@@ -8,7 +9,7 @@ const LectureCard = ({ lectureTime, lectureTheatre }) => (
   </div>
 );
 
-const Timetable = () => {
+const Lecture = () => {
   const lectures = [
     { lectureTime: "13:00 - 14:00", lectureTheatre: "EEE 251 @ ODLT 1" },
     { lectureTime: "14:00 - 15:00", lectureTheatre: "EEE 252 @ ODLT 2" },
@@ -21,7 +22,7 @@ const Timetable = () => {
 
   return (
     <div className="mt-8">
-      <h1 className="text-xl">Timetable</h1>
+      <h1 className="text-xl">Lecture</h1>
       <div className="mt-4 w-full gap-4 grid grid-cols-1 md:grid-cols-3">
         {lectures.map((lecture, index) => (
           <LectureCard key={index} {...lecture} />
@@ -31,4 +32,4 @@ const Timetable = () => {
   );
 };
 
-export default Timetable;
+export default Lecture;

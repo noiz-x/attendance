@@ -70,20 +70,20 @@ class Lecture(models.Model):
     def __str__(self):
         return f"{self.course.course_title} at {self.theatre.name} from {self.start_time} to {self.end_time}"
 
-    def get_occurrences(self, from_date, to_date):
-        """
-        Returns a list of occurrences (with start and end datetimes)
-        for this lecture between the specified dates.
-        """
-        from datetime import datetime
-        occurrences = []
-        if self.recurrence:
-            dates = self.recurrence.between(from_date, to_date, inc=True)
-            for d in dates:
-                start_dt = datetime.combine(d, self.start_time)
-                end_dt = datetime.combine(d, self.end_time)
-                occurrences.append({'start': start_dt, 'end': end_dt})
-        return occurrences
+    # def get_occurrences(self, from_date, to_date):
+    #     """
+    #     Returns a list of occurrences (with start and end datetimes)
+    #     for this lecture between the specified dates.
+    #     """
+    #     from datetime import datetime
+    #     occurrences = []
+    #     if self.recurrence:
+    #         dates = self.recurrence.between(from_date, to_date, inc=True)
+    #         for d in dates:
+    #             start_dt = datetime.combine(d, self.start_time)
+    #             end_dt = datetime.combine(d, self.end_time)
+    #             occurrences.append({'start': start_dt, 'end': end_dt})
+    #     return occurrences
 
 class CanceledOccurrence(models.Model):
     """

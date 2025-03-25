@@ -1,15 +1,18 @@
 // Frontend/src/App.jsx
-import React from "react";
+
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Day from "./components/Day";
 import Attendance from "./components/Attendance";
-import Timetable from "./components/Timetable";
+import Lecture from "./components/Lecture";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 
-function App() {
+const App = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   return (
     <Router>
       <Routes>
@@ -20,11 +23,15 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <div className="w-screen p-4 md:p-8">
+              <div className="p-4 md:p-8">
                 <Navbar />
-                <Day />
-                <Attendance />
-                <Timetable />
+                {/* Pass state to children */}
+                <Day
+                  selectedDate={selectedDate}
+                  setSelectedDate={setSelectedDate}
+                />
+                <Attendance selectedDate={selectedDate} />
+                <Lecture selectedDate={selectedDate} />
               </div>
             </ProtectedRoute>
           }
@@ -32,6 +39,6 @@ function App() {
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;

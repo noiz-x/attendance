@@ -3,6 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
+  // baseURL: "https://60938ff1470be1.lhr.life/", // Your Django backend URL
   baseURL: "http://127.0.0.1:8000/", // Your Django backend URL
 });
 

@@ -1,5 +1,6 @@
 // Frontend/src/components/Day.jsx
-import { useState } from "react";
+
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const daysShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const daysLong = [
@@ -15,7 +16,28 @@ const daysLong = [
 const DayButton = ({ currentDate, offset, isCurrent, onSelect }) => {
   const date = new Date(currentDate);
   date.setDate(currentDate.getDate() + offset);
-  const dayClass = isCurrent ? "currentDay" : "day";
+
+  let dayClass;
+
+  switch (offset) {
+    case 0:
+      dayClass = "currentDay";
+      break;
+    case -1:
+      dayClass = "day1";
+      break;
+    case 1:
+      dayClass = "day1";
+      break;
+    case -2:
+      dayClass = "day2";
+      break;
+    case 2:
+      dayClass = "day2";
+      break;
+    default:
+      dayClass = "";
+  }
 
   return (
     <button
@@ -29,12 +51,13 @@ const DayButton = ({ currentDate, offset, isCurrent, onSelect }) => {
   );
 };
 
-const Day = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+const Day = ({ selectedDate, setSelectedDate }) => {
+  // Use selectedDate from props or default to new Date() if not provided
+  const currentDate = selectedDate || new Date();
 
-  const changeDate = (date) => setCurrentDate(date);
+  const changeDate = (date) => setSelectedDate(date);
   const shiftDate = (days) =>
-    setCurrentDate((prev) => {
+    setSelectedDate((prev) => {
       const d = new Date(prev);
       d.setDate(d.getDate() + days);
       return d;
@@ -62,23 +85,10 @@ const Day = () => {
       </div>
       <div className="flex h-[125px] items-center gap-2 md:gap-6 w-full">
         <button
-          className="rounded-md hidden cursor-pointer h-[100px] w-12 md:flex items-center justify-center bg-neutral-50"
+          className="border border-neutral-400 rounded-md hidden cursor-pointer h-[50px] w-12 md:flex items-center justify-center bg-neutral-50"
           onClick={() => shiftDate(-7)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5 8.25 12l7.5-7.5"
-            />
-          </svg>
+          <ArrowLeft size={24} />
         </button>
         <div className="w-full flex items-center gap-3 md:gap-6">
           <DayButton
@@ -109,68 +119,29 @@ const Day = () => {
           />
         </div>
         <button
-          className="rounded-md hidden h-[100px] w-12 cursor-pointer md:flex items-center justify-center bg-neutral-50"
+          className="border border-neutral-400 rounded-md hidden h-[50px] w-12 cursor-pointer md:flex items-center justify-center bg-neutral-50"
           onClick={() => shiftDate(7)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m8.25 4.5 7.5 7.5-7.5 7.5"
-            />
-          </svg>
+          <ArrowRight size={24} />
         </button>
       </div>
       <div className="flex md:hidden h-12 w-full gap-4">
         <button
-          className="rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
+          className="border border-neutral-50 rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
           onClick={() => shiftDate(-7)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5 8.25 12l7.5-7.5"
-            />
-          </svg>
+          <ArrowLeft size={24} />
         </button>
         <button
-          className="rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
+          className="border border-neutral-50 rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
           onClick={() => shiftDate(7)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m8.25 4.5 7.5 7.5-7.5 7.5"
-            />
-          </svg>
+          <ArrowRight size={24} />
         </button>
       </div>
       <p
         className="text-blue-500 cursor-pointer"
-        onClick={() => setCurrentDate(new Date())}
+        onClick={() => setSelectedDate(new Date())}
       >
         Today
       </p>
