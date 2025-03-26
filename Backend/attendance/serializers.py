@@ -10,7 +10,17 @@ specifically for creating attendance records.
 from datetime import datetime, timedelta
 from rest_framework import serializers
 from django.db import transaction, IntegrityError
-from .models import Attendance, Lecture, Course, Registration
+from .models import Attendance, Lecture, Course, Registration, Theatre
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['id', 'course_title', "course_code"]
+
+class TheatreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Theatre
+        fields = ['id', 'name']
 
 class AttendanceSerializer(serializers.ModelSerializer):
     """
@@ -49,6 +59,8 @@ class LectureSerializer(serializers.ModelSerializer):
     """
 
     occurrences = serializers.SerializerMethodField()
+    course = CourseSerializer(read_only=True)
+    theatre = TheatreSerializer(read_only=True)
 
     class Meta:
         model = Lecture

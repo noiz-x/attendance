@@ -1,4 +1,5 @@
 // Frontend/src/AuthContext.jsx
+
 import React, { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext({
@@ -8,9 +9,7 @@ export const AuthContext = createContext({
 
 export const AuthProvider = ({ children }) => {
   // Initialize token from localStorage.
-  const [token, setToken] = useState(
-    localStorage.getItem("access") || null
-  );
+  const [token, setToken] = useState(localStorage.getItem("access") || null);
 
   // Update localStorage whenever token changes.
   useEffect(() => {

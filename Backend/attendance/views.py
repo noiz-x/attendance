@@ -80,7 +80,7 @@ class LectureViewSet(viewsets.ReadOnlyModelViewSet):
                         dtend = dtstart + timedelta(days=30)
                     
                     # Compute occurrences within the window.
-                    occurrences = lecture.recurrence.between(dtstart, dtend, dtstart=dtstart)
+                    occurrences = lecture.recurrence.between(dtstart-timedelta(weeks=1), dtend, dtstart=dtstart-timedelta(weeks=1))
                     
                     # Check if any occurrence falls on the selected date.
                     if any(occ.date() == selected_date for occ in occurrences):

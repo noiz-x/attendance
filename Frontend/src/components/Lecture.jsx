@@ -1,9 +1,8 @@
 // Frontend/src/components/Lecture.jsx
-
 import React from "react";
 
 const LectureCard = ({ lectureTime, lectureTheatre }) => (
-  <div className="flex flex-col h-[100px] bg-neutral-100 rounded-md p-4">
+  <div className="flex flex-col h-[100px] bg-blue-100 rounded-md p-4">
     <p className="font-bold">{lectureTime}</p>
     <p className="text-xl">{lectureTheatre}</p>
   </div>

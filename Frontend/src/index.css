@@ -1,27 +1,26 @@
-/* src/index.css */
-@import "tailwindcss";
-@import "tailwindcss";
+/* Frontend/src/index.css */
 @import "tailwindcss";
 
 /* Custom classes */
 .day2 {
-  @apply opacity-70 h-[75px] flex flex-col justify-center items-center gap-2 p-4 bg-neutral-50 w-1/5 border border-neutral-400 rounded-md cursor-pointer;
+  @apply opacity-70 h-[75px] flex flex-col justify-center items-center gap-2 p-4 bg-blue-50 w-1/6 md:w-1/5 border border-blue-400 rounded-md cursor-pointer;
 }
 .day1 {
-  @apply opacity-70 h-[100px] flex flex-col justify-center items-center gap-2 p-4 bg-neutral-100 w-1/5 border border-neutral-600 rounded-md cursor-pointer;
+  @apply opacity-70 h-[100px] flex flex-col justify-center items-center gap-2 p-4 bg-blue-100 w-1/6 md:w-1/5 border border-blue-600 rounded-md cursor-pointer;
 }
 .currentDay {
-  @apply flex flex-col h-[125px] items-center justify-center gap-2 p-4 bg-neutral-200 border border-neutral-800 w-1/5 rounded-md font-bold cursor-pointer;
+  @apply flex flex-col h-[125px] items-center justify-center gap-2 p-4 bg-blue-200 border border-blue-800 w-1/5 rounded-md font-bold cursor-pointer;
 }
 
 *:no-button{
-  @apply text-neutral-800;
+  @apply text-blue-800;
 }
 
 html {
-  @apply overflow-x-hidden;
+  @apply overflow-x-hidden box-border font-display;
 }
 
-* {
-  box-sizing: border-box;
+@theme {
+  --font-display: "Roboto Condensed", "sans-serif"; 
+  --font-display: "Inter", "sans-serif"; 
 }

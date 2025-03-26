@@ -1,5 +1,4 @@
 // Frontend/src/components/Day.jsx
-
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const daysShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -52,7 +51,6 @@ const DayButton = ({ currentDate, offset, isCurrent, onSelect }) => {
 };
 
 const Day = ({ selectedDate, setSelectedDate }) => {
-  // Use selectedDate from props or default to new Date() if not provided
   const currentDate = selectedDate || new Date();
 
   const changeDate = (date) => setSelectedDate(date);
@@ -85,7 +83,7 @@ const Day = ({ selectedDate, setSelectedDate }) => {
       </div>
       <div className="flex h-[125px] items-center gap-2 md:gap-6 w-full">
         <button
-          className="border border-neutral-400 rounded-md hidden cursor-pointer h-[50px] w-12 md:flex items-center justify-center bg-neutral-50"
+          className="border border-blue-400 rounded-md hidden cursor-pointer h-[50px] w-12 md:flex items-center justify-center bg-blue-50"
           onClick={() => shiftDate(-7)}
         >
           <ArrowLeft size={24} />
@@ -119,7 +117,7 @@ const Day = ({ selectedDate, setSelectedDate }) => {
           />
         </div>
         <button
-          className="border border-neutral-400 rounded-md hidden h-[50px] w-12 cursor-pointer md:flex items-center justify-center bg-neutral-50"
+          className="border border-blue-400 rounded-md hidden h-[50px] w-12 cursor-pointer md:flex items-center justify-center bg-blue-50"
           onClick={() => shiftDate(7)}
         >
           <ArrowRight size={24} />
@@ -127,13 +125,13 @@ const Day = ({ selectedDate, setSelectedDate }) => {
       </div>
       <div className="flex md:hidden h-12 w-full gap-4">
         <button
-          className="border border-neutral-50 rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
+          className="border border-blue-300 rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-blue-50"
           onClick={() => shiftDate(-7)}
         >
           <ArrowLeft size={24} />
         </button>
         <button
-          className="border border-neutral-50 rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-neutral-50"
+          className="border border-blue-300 rounded-md cursor-pointer h-full w-1/2 flex items-center justify-center bg-blue-50"
           onClick={() => shiftDate(7)}
         >
           <ArrowRight size={24} />

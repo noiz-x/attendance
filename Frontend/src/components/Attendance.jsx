@@ -1,10 +1,6 @@
+// Frontend/src/components/Attendance.jsx
 import React, { useState, useEffect } from "react";
 import AttendanceService from "../services/attendanceService";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,15 +11,29 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import moment from "moment-timezone";
 
-const formatDate = (date) =>
-  moment(date).tz("Africa/Lagos").format("YYYY-MM-DD");
+// Helper to format a Date in Africa/Lagos timezone to YYYY-MM-DD
+const formatDate = (dateInput) => {
+  const dateString = new Date(dateInput).toLocaleString("en-US", {
+    timeZone: "Africa/Lagos",
+  });
+  const date = new Date(dateString);
+  return date.toISOString().split("T")[0];
+};
 
+// Helper to get current time in Africa/Lagos as a Date object
+const getNowInLagos = () =>
+  new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
+
+// Parse a lecture's start and end times assuming Africa/Lagos (UTC+1)
+const parseLectureTime = (lecture) => {
+  const start = new Date(`${lecture.start_date}T${lecture.start_time}+01:00`);
+  const end = new Date(`${lecture.start_date}T${lecture.end_time}+01:00`);
+  return { start, end };
+};
 
 const Attendance = ({ selectedDate }) => {
-  const [lecture, setLecture] = useState(null);
-  const [nextLecture, setNextLecture] = useState(null);
+  const [lectures, setLectures] = useState([]);
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -33,29 +43,11 @@ const Attendance = ({ selectedDate }) => {
   useEffect(() => {
     const fetchLectures = async () => {
       try {
+        const formattedDate = formatDate(selectedDate);
         const response = await AttendanceService.listLectures({
-          date: formatDate(selectedDate),
+          date: formattedDate,
         });
-        const lectures = response.data.results;
-        const today = new Date();
-
-        if (formatDate(selectedDate) === formatDate(today)) {
-          const now = new Date();
-          const ongoingLecture = lectures.find((lec) => {
-            const startTime = new Date(`${lec.start_date}T${lec.start_time}`);
-            const endTime = new Date(`${lec.end_date}T${lec.end_time}`);
-            return now >= startTime && now <= endTime;
-          });
-          const upcomingLecture = lectures.find((lec) => {
-            const startTime = new Date(`${lec.start_date}T${lec.start_time}`);
-            return now < startTime;
-          });
-          setLecture(ongoingLecture);
-          setNextLecture(!ongoingLecture ? upcomingLecture : null);
-        } else {
-          setLecture(lectures.length > 0 ? lectures[0] : null);
-          setNextLecture(null);
-        }
+        setLectures(response.data.results || []);
       } catch (error) {
         console.error("Error fetching lectures:", error);
       }
@@ -71,17 +63,25 @@ const Attendance = ({ selectedDate }) => {
             longitude: position.coords.longitude,
           });
         },
-        (error) => {
-          setErrorMessage("Location permission is required to mark attendance.");
+        () => {
+          setErrorMessage(
+            "Location permission is required to mark attendance."
+          );
           setErrorModalOpen(true);
         }
       );
     }
   }, [selectedDate]);
 
-  const submitAttendance = async () => {
-    if (!lecture) {
-      setErrorMessage("No active lecture at this time.");
+  const isLectureActive = (lec) => {
+    const now = getNowInLagos();
+    const { start, end } = parseLectureTime(lec);
+    return now >= start && now <= end;
+  };
+
+  const submitAttendance = async (lecture) => {
+    if (!isLectureActive(lecture)) {
+      setErrorMessage("Attendance cannot be marked at this time.");
       setErrorModalOpen(true);
       return;
     }
@@ -95,61 +95,61 @@ const Attendance = ({ selectedDate }) => {
       setSuccessMessage("Your attendance has been marked.");
       setSuccessModalOpen(true);
     } catch (error) {
-      setErrorMessage(error.response.data.error);
+      setErrorMessage(
+        error.response?.data?.error || "Error marking attendance."
+      );
       setErrorModalOpen(true);
     }
   };
 
+  const renderLectureCard = (lec) => {
+    const active = isLectureActive(lec);
+    return (
+      <Card key={lec.id} className="w-full bg-blue-50 p-6">
+        <CardHeader>
+          <CardTitle className="text-lg font-bold">
+            {`${lec.start_time} - ${lec.end_time}`}
+          </CardTitle>
+          <p className="text-md">
+            Course: {`${lec.course?.course_code} - ${lec.course?.course_title}`}
+          </p>
+          <p className="text-md">
+            Theatre: {lec.theatre?.name || `ID: ${lec.theatre}`}
+          </p>
+        </CardHeader>
+        <CardContent>
+          {active ? (
+            <Button
+              type="button"
+              onClick={() => submitAttendance(lec)}
+              className="w-full bg-black text-white py-3 rounded-md hover:bg-blue-700"
+            >
+              Mark Attendance
+            </Button>
+          ) : (
+            <Button
+              disabled
+              className="w-full bg-blue-500 text-white py-3 rounded-md"
+            >
+              Attendance Not Available Yet
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
-    <div>
-      <h1 className="text-xl">Attendance</h1>
-      {lecture ? (
-        <ResizablePanelGroup direction="horizontal" className="sm:w-full gap-2">
-          <ResizablePanel>
-            <Card className="w-full bg-neutral-50 p-6">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold">
-                  {`${lecture.start_time} - ${lecture.end_time}`}
-                </CardTitle>
-                <p className="text-sm">Theatre ID: {lecture.theatre}</p>
-                <p className="text-sm">Course ID: {lecture.course}</p>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  onClick={submitAttendance}
-                  className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-700"
-                >
-                  Mark Attendance
-                </Button>
-              </CardContent>
-            </Card>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      ) : nextLecture ? (
-        <ResizablePanelGroup direction="horizontal" className="sm:w-full gap-2">
-          <ResizablePanel>
-            <Card className="w-full bg-neutral-50 p-6">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold">
-                  {`${nextLecture.start_time} - ${nextLecture.end_time}`}
-                </CardTitle>
-                <p className="text-sm">Theatre ID: {nextLecture.theatre}</p>
-                <p className="text-sm">Course ID: {nextLecture.course}</p>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  disabled
-                  className="w-full bg-neutral-500 text-white py-3 rounded-md"
-                >
-                  Attendance Not Available Yet
-                </Button>
-              </CardContent>
-            </Card>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+    <div className="p-4 md:p-8">
+      <h1 className="text-xl font-bold mb-4">Attendance</h1>
+      {lectures.length > 0 ? (
+        <div className="mt-4 flex flex-col md:flex-row gap-4">
+          {lectures.map((lec) => renderLectureCard(lec))}
+        </div>
       ) : (
-        <p>No ongoing or upcoming lectures at this time.</p>
+        <p>No lectures available for the selected date.</p>
       )}
+
       <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
@@ -161,13 +161,14 @@ const Attendance = ({ selectedDate }) => {
           <DialogFooter>
             <Button
               onClick={() => setErrorModalOpen(false)}
-              className="border border-black hover:bg-gray-300"
+              className="border border-black hover:bg-blue-300"
             >
               Close
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
@@ -179,7 +180,7 @@ const Attendance = ({ selectedDate }) => {
           <DialogFooter>
             <Button
               onClick={() => setSuccessModalOpen(false)}
-              className="border border-black hover:bg-gray-300"
+              className="border border-black hover:bg-blue-300"
             >
               Close
             </Button>

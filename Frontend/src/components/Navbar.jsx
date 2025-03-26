@@ -1,10 +1,9 @@
 // Frontend/src/components/Navbar.jsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { Menu as MenuIcon, Bell, Terminal } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu as MenuIcon } from "lucide-react";
 import AccountService from "../services/accountService";
 import {
   NavigationMenu,
@@ -22,7 +21,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -43,13 +41,11 @@ export default function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("access");
 
-  // Only show Navbar if a token exists.
   if (!token) return null;
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user details on mount.
   useEffect(() => {
     AccountService.getUser()
       .then((res) => {
@@ -68,10 +64,9 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-gray-100 mb-10">
+    <header className="bg-blue-100 mb-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Mobile Navigation using NavigationMenu */}
           <NavigationMenu className="sm:hidden">
             <NavigationMenuList>
               <NavigationMenuItem>
@@ -84,7 +79,7 @@ export default function Navbar() {
                       <li key={item.name}>
                         <Link
                           to={item.href}
-                          className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-200 "
+                          className="block rounded-md px-3 py-2 text-base font-medium text-blue-700 hover:bg-blue-200 "
                         >
                           {item.name}
                         </Link>
@@ -96,7 +91,6 @@ export default function Navbar() {
             </NavigationMenuList>
           </NavigationMenu>
 
-          {/* Logo and Desktop Navigation */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <Link to="/">
               <img
@@ -116,7 +110,6 @@ export default function Navbar() {
                       >
                         {item.name}
                       </Link>
-                      {/* <DropdownMenuSeparator/> */}
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}
@@ -124,23 +117,6 @@ export default function Navbar() {
             </NavigationMenu>
           </div>
 
-          {/* Right Side: Notifications & Profile Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="cursor-pointer p-1">
-                <Bell className="h-6 w-6 text-gray-600" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-white w-[70%] md:w-full mx-auto">
-              <Alert>
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Heads up!</AlertTitle>
-                <AlertDescription>
-                  You can add components to your app using the CLI.
-                </AlertDescription>
-              </Alert>
-            </DropdownMenuContent>
-          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="cursor-pointer rounded-full">
@@ -150,7 +126,13 @@ export default function Navbar() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-white w-48">
+
+            <DropdownMenuContent
+              portalled
+              side="bottom"
+              sideOffset={14}
+              className="bg-white w-auto min-w-[220px] rounded-md p-[5px] shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]"
+            >
               <DropdownMenuItem asChild>
                 <Link to="/accounts/user/" className="flex items-center">
                   {loading

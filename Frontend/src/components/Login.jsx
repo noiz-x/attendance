@@ -1,34 +1,31 @@
 // Frontend/src/components/Login.jsx
-
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AccountService from "../services/accountService";
 import { AuthContext } from "../AuthContext";
 
 const Login = () => {
-  const [username, setUsername] = useState(""); // Updated from username to username
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // Initialize loading state to false
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { setToken } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when login process starts
+    setLoading(true);
     setError("");
     try {
-      const response = await AccountService.login({ username, password }); // Updated to use username
-      // Assuming token is in response.data.access
+      const response = await AccountService.login({ username, password });
       setToken(response.data.access);
       navigate("/dashboard");
     } catch (error) {
-      // Extract non_field_errors from the error response if they exist
       const nonFieldErrors = error.response?.data?.non_field_errors;
       setError(nonFieldErrors || "An error occurred during login.");
-      setPassword("")
+      setPassword("");
     } finally {
-      setLoading(false); // Reset loading state after login process completes
+      setLoading(false);
     }
   };
 
@@ -78,12 +75,12 @@ const Login = () => {
                 Password
               </label>
               <div className="text-sm">
-                <a
-                  href="#"
+                <Link
+                  to="/forgot-password"
                   className="font-semibold text-indigo-600 hover:text-indigo-500"
                 >
-                  <Link to="/forgot-password">Forgot password?</Link>
-                </a>
+                  Forgot password?
+                </Link>
               </div>
             </div>
             <div className="mt-2">
